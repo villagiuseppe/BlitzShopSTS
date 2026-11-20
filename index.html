@@ -22,18 +22,17 @@
 
     <main class="layout">
       <section class="panel controls" aria-labelledby="controls-title">
-        <h2 id="controls-title">Game setup</h2>
+        <h2 id="controls-title">Number of players</h2>
 
         <fieldset class="player-fieldset">
-          <legend>Number of players</legend>
-          <div id="player-selector" class="player-selector"></div>
+          <div class="setup-row">
+            <div id="player-selector" class="player-selector"></div>
+            <div class="button-row">
+              <button id="draw-btn" class="btn" type="button">Draw</button>
+              <button id="reset-choices-btn" class="btn" type="button">Reset</button>
+            </div>
+          </div>
         </fieldset>
-
-        <div class="button-row">
-          <button id="draw-btn" class="btn btn-primary" type="button">Draw</button>
-          <button id="reset-choices-btn" class="btn" type="button">Reset Picks</button>
-          <button id="reshuffle-btn" class="btn btn-ghost" type="button">Reshuffle All</button>
-        </div>
 
         <div class="active-player-row">
           <label for="active-player">Active player</label>
@@ -42,10 +41,7 @@
         </div>
       </section>
 
-      <section class="panel board" aria-labelledby="board-title">
-        <h2 id="board-title">
-          Revealed Cards <span class="tag">Shared + personal</span>
-        </h2>
+      <section class="panel board">
         <div id="player-statuses" class="player-statuses"></div>
         <div id="ware-board" class="card-grid"></div>
       </section>

@@ -122,6 +122,13 @@ h2 {
   font-size: 0.8rem;
 }
 
+.setup-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 .player-selector {
   display: flex;
   flex-wrap: wrap;
@@ -157,7 +164,6 @@ h2 {
   display: flex;
   flex-wrap: nowrap;
   gap: 0.4rem;
-  margin-bottom: 0.75rem;
 }
 
 .btn {
@@ -181,17 +187,6 @@ h2 {
 .btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
-}
-
-.btn-primary {
-  border-color: var(--gold);
-  background: linear-gradient(135deg, #f0c868, #c9922f);
-  color: #201804;
-  font-weight: 700;
-}
-
-.btn-ghost {
-  background: transparent;
 }
 
 .active-player-row {
@@ -256,25 +251,6 @@ input[type="text"] {
 .player-status .bonus {
   color: var(--green);
   font-weight: 700;
-}
-
-.tag {
-  display: inline-block;
-  margin-left: 0.35rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: 6px;
-  background: var(--gold-soft);
-  color: var(--gold);
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  vertical-align: middle;
-}
-
-.tag-danger {
-  background: var(--red-soft);
-  color: var(--red);
 }
 
 .card-grid {
@@ -424,9 +400,14 @@ input[type="text"] {
   cursor: pointer;
 }
 
-.card-info-btn:hover {
+.card-info-btn:hover:not(:disabled) {
   background: var(--gold);
   color: #201804;
+}
+
+.card-info-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .copies-badge {
@@ -444,16 +425,18 @@ input[type="text"] {
 
 .taken-overlay {
   position: absolute;
-  inset: 0;
+  inset: auto 0 50%;
+  z-index: 4;
   display: grid;
   place-items: center;
-  background: rgba(8, 10, 14, 0.72);
+  padding: 0.25rem 0;
+  background: rgba(8, 10, 14, 0.85);
   color: var(--green);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-align: center;
-  transform: rotate(-12deg);
+  transform: translateY(50%);
   pointer-events: none;
 }
 

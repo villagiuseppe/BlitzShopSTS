@@ -19,7 +19,6 @@ const dom = {
   playerSelector: document.getElementById('player-selector'),
   drawBtn: document.getElementById('draw-btn'),
   resetBtn: document.getElementById('reset-choices-btn'),
-  reshuffleBtn: document.getElementById('reshuffle-btn'),
   activePlayer: document.getElementById('active-player'),
   activeHint: document.getElementById('active-hint'),
   wareBoard: document.getElementById('ware-board'),
@@ -196,6 +195,8 @@ function updateBoardStates() {
     const otherPlayer = source === 'cursed' && owner !== state.activePlayer;
     const button = slot.querySelector('.card-button');
     const overlay = slot.querySelector('.taken-overlay');
+    const infoButton = slot.querySelector('.card-info-btn');
+    const info = slot.querySelector('.card-info');
 
     slot.classList.toggle('taken', taken);
     slot.classList.toggle('other-player', otherPlayer);
@@ -208,6 +209,12 @@ function updateBoardStates() {
           ? 'Purchase'
           : reasonLabel(check.reason);
     overlay.hidden = !taken;
+    infoButton.disabled = taken;
+    if (taken) {
+      info.hidden = true;
+      infoButton.textContent = '?';
+      infoButton.setAttribute('aria-expanded', 'false');
+    }
   });
 
   dom.playerStatuses.replaceChildren();
@@ -254,7 +261,6 @@ function handleBuy(event) {
 }
 
 dom.drawBtn.addEventListener('click', () => startNewSession());
-dom.reshuffleBtn.addEventListener('click', () => startNewSession());
 dom.resetBtn.addEventListener('click', () => {
   resetChoices(state.session);
   updateBoardStates();
