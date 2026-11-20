@@ -189,6 +189,25 @@ h2 {
   cursor: not-allowed;
 }
 
+.btn-primary {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, #f0c868, #c9922f);
+  color: #201804;
+  font-weight: 700;
+}
+
+.btn-secondary {
+  margin-left: 0.4rem;
+  border-color: rgba(224, 90, 90, 0.35);
+  background: transparent;
+  color: var(--muted);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--red);
+  color: var(--red);
+}
+
 .active-player-row {
   display: flex;
   flex-wrap: wrap;
@@ -198,21 +217,47 @@ h2 {
   border-top: 1px solid var(--line);
 }
 
-.active-player-row label {
+.active-player-row label,
+.active-player-row .active-player-label {
   color: var(--muted);
   font-size: 0.82rem;
 }
 
-select,
-input[type="number"],
-input[type="text"] {
-  padding: 0.5rem 0.65rem;
+.active-player-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.active-player-chip {
+  min-width: 42px;
+  padding: 0.35rem 0.6rem;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel-2);
-  color: var(--text);
+  color: var(--muted);
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.active-player-chip:hover {
+  border-color: var(--gold);
+  color: var(--text);
+}
+
+.active-player-chip.active {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.active-player-chip.complete {
+  border-color: var(--green);
+  background: transparent;
+  color: var(--green);
 }
 
 .hint {
@@ -244,8 +289,17 @@ input[type="text"] {
   color: var(--gold);
 }
 
+.player-status.complete {
+  border-color: var(--green);
+  color: var(--green);
+}
+
 .player-status b {
   color: var(--text);
+}
+
+.player-status.complete b {
+  color: var(--green);
 }
 
 .player-status .bonus {
@@ -356,7 +410,7 @@ input[type="text"] {
   position: absolute;
   inset: auto 0 0;
   z-index: 2;
-  padding: 2.4rem 2.6rem 0.6rem 0.6rem;
+  padding: 2.4rem 3rem 0.6rem 0.6rem;
   background: rgba(6, 8, 12, 0.5);
 }
 
@@ -381,13 +435,13 @@ input[type="text"] {
 
 .card-info-btn {
   position: absolute;
-  right: 0.45rem;
-  bottom: 0.45rem;
+  right: 0.4rem;
+  bottom: 0.4rem;
   z-index: 3;
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: 1px solid var(--gold);
   border-radius: 50%;
@@ -513,14 +567,35 @@ input[type="text"] {
     flex-wrap: wrap;
   }
 
-  select,
-  input[type="number"],
-  input[type="text"] {
-    font-size: 16px;
+  .card-info {
+    padding-right: 3.5rem;
+  }
+
+  .card-info-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .site-footer {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.72rem;
+  }
+
+  .site-footer p {
+    flex: 1;
+    line-height: 1.35;
+  }
+
+  #app-version {
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
 
   .btn,
-  .player-chip {
+  .player-chip,
+  .active-player-chip {
     min-height: 44px;
   }
 }

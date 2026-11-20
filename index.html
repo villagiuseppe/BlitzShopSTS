@@ -28,15 +28,15 @@
           <div class="setup-row">
             <div id="player-selector" class="player-selector"></div>
             <div class="button-row">
-              <button id="draw-btn" class="btn" type="button">Draw</button>
-              <button id="reset-choices-btn" class="btn" type="button">Reset</button>
+              <button id="draw-btn" class="btn btn-primary" type="button">Draw</button>
+              <button id="reset-choices-btn" class="btn btn-secondary" type="button">Reset</button>
             </div>
           </div>
         </fieldset>
 
         <div class="active-player-row">
-          <label for="active-player">Active player</label>
-          <select id="active-player"></select>
+          <span class="active-player-label">Active player</span>
+          <div id="active-player" class="active-player-buttons" role="group" aria-label="Active player"></div>
           <span id="active-hint" class="hint">Click a card to purchase it.</span>
         </div>
       </section>

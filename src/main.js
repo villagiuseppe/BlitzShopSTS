@@ -141,14 +141,23 @@ function renderPlayerSelector() {
   }
 }
 
-function renderActivePlayerSelect() {
+function renderActivePlayerButtons() {
   dom.activePlayer.replaceChildren();
-  for (let p = 0; p < state.numPlayers; p += 1) {
-    const option = el('option', '', `Player ${p + 1}`);
-    option.value = String(p);
-    dom.activePlayer.append(option);
+  for (let p = RULES.MIN_PLAYERS; p <= RULES.MAX_PLAYERS; p += 1) {
+    const summary = playerSummary(state.session, p);
+    const classes = ['active-player-chip'];
+    if (p === state.activePlayer) classes.push('active');
+    if (summary.used >= summary.limit) classes.push('complete');
+    const chip = el('button', classes.join(' '), `P${p + 1}`);
+    chip.type = 'button';
+    chip.hidden = p > state.numPlayers;
+    chip.setAttribute('aria-pressed', String(p === state.activePlayer));
+    chip.addEventListener('click', () => {
+      state.activePlayer = p;
+      updateBoardStates();
+    });
+    dom.activePlayer.append(chip);
   }
-  dom.activePlayer.value = String(state.activePlayer);
 }
 
 function renderBoards() {
@@ -222,12 +231,20 @@ function updateBoardStates() {
     const ps = playerSummary(session, p);
     const status = el(
       'div',
-      p === state.activePlayer ? 'player-status active' : 'player-status',
+      [
+        'player-status',
+        p === state.activePlayer ? 'active' : '',
+        ps.used >= ps.limit ? 'complete' : '',
+      ]
+        .filter(Boolean)
+        .join(' '),
     );
     status.append(el('span', '', `P${p + 1}`), el('b', '', `${ps.used}/${ps.limit}`));
     if (ps.cursedChosen) status.append(el('span', 'bonus', '+2'));
     dom.playerStatuses.append(status);
   }
+
+  renderActivePlayerButtons();
 
   if (active.remaining === 0) {
     dom.activeHint.textContent = `Player ${state.activePlayer + 1}: purchase limit reached.`;
@@ -243,7 +260,6 @@ function startNewSession() {
   state.activePlayer = Math.min(state.activePlayer, state.numPlayers - 1);
 
   renderPlayerSelector();
-  renderActivePlayerSelect();
   renderBoards();
   updateBoardStates();
 }
@@ -263,10 +279,6 @@ function handleBuy(event) {
 dom.drawBtn.addEventListener('click', () => startNewSession());
 dom.resetBtn.addEventListener('click', () => {
   resetChoices(state.session);
-  updateBoardStates();
-});
-dom.activePlayer.addEventListener('change', () => {
-  state.activePlayer = Number(dom.activePlayer.value);
   updateBoardStates();
 });
 dom.wareBoard.addEventListener('click', handleBuy);
