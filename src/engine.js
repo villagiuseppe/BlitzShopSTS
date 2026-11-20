@@ -65,7 +65,7 @@ export function validatePlayerCount(numPlayers) {
 
 /**
  * Regola di rivelazione dello Standard:
- *  - 1 giocatore (Solo)  -> 3 carte;
+ *  - 1 giocatore (Solo)  -> 3 carte di tipologie diverse;
  *  - piu' giocatori      -> 2 * num_giocatori carte.
  */
 export function standardRevealCount(numPlayers) {
@@ -123,7 +123,24 @@ export function createSession({
 
   // Rivelazione Standard: dal mazzo mescolato, senza reimmissione.
   const revealCount = standardRevealCount(numPlayers);
-  const revealedStandard = standardDeck.splice(0, revealCount);
+  const revealedStandard = [];
+  if (numPlayers === 1) {
+    const seenTypes = new Set();
+    for (
+      let index = 0;
+      index < standardDeck.length && revealedStandard.length < revealCount;
+    ) {
+      const card = standardDeck[index];
+      if (seenTypes.has(card.id)) {
+        index += 1;
+        continue;
+      }
+      seenTypes.add(card.id);
+      revealedStandard.push(standardDeck.splice(index, 1)[0]);
+    }
+  } else {
+    revealedStandard.push(...standardDeck.splice(0, revealCount));
+  }
 
   // Rivelazione Maledetta: esattamente 1 carta per ciascun giocatore.
   const cursedByPlayer = [];
