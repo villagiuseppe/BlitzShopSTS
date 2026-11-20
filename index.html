@@ -7,7 +7,7 @@
       name="description"
       content="Static companion app for drawing Merchant wares in Shop Blitz Mode: Standard and Cursed cards."
     />
-    <title>Shop Blitz Mode · Card Draw Simulator</title>
+    <title>Shop Blitz Simulator ·</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -15,8 +15,7 @@
       <div class="brand">
         <span class="brand-mark" aria-hidden="true">SB</span>
         <div>
-          <h1>Shop Blitz Mode</h1>
-          <p>Card draw simulator</p>
+          <h1>Shop Blitz Simulator</h1>          
         </div>
       </div>
     </header>
@@ -49,23 +48,6 @@
         </h2>
         <div id="player-statuses" class="player-statuses"></div>
         <div id="ware-board" class="card-grid"></div>
-      </section>
-
-      <section class="panel side" aria-labelledby="side-title">
-        <h2 id="side-title">History &amp; tests</h2>
-
-        <h3>Draw history</h3>
-        <div id="history" class="history" aria-live="polite"></div>
-
-        <h3>Debug / probability check</h3>
-        <div class="debug-controls">
-          <label for="debug-trials">Simulations</label>
-          <input id="debug-trials" type="number" min="100" max="100000" step="100" value="1000" />
-          <label for="debug-seed">Seed</label>
-          <input id="debug-seed" type="text" placeholder="random" inputmode="numeric" />
-          <button id="run-debug-btn" class="btn btn-small" type="button">Run simulation</button>
-        </div>
-        <div id="debug-results" class="debug-results"></div>
       </section>
     </main>
 

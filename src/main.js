@@ -1,13 +1,11 @@
 import { RULES, imagePath } from './cards.js';
 import {
   createSession,
-  standardRevealCount,
   purchase,
   resetChoices,
   playerSummary,
   isStandardTaken,
   canPurchase,
-  simulateFrequencies,
 } from './engine.js';
 import { APP_VERSION } from './version.js';
 
@@ -15,7 +13,6 @@ const state = {
   numPlayers: 1,
   activePlayer: 0,
   session: null,
-  history: [],
 };
 
 const dom = {
@@ -27,11 +24,6 @@ const dom = {
   activeHint: document.getElementById('active-hint'),
   wareBoard: document.getElementById('ware-board'),
   playerStatuses: document.getElementById('player-statuses'),
-  history: document.getElementById('history'),
-  debugTrials: document.getElementById('debug-trials'),
-  debugSeed: document.getElementById('debug-seed'),
-  runDebugBtn: document.getElementById('run-debug-btn'),
-  debugResults: document.getElementById('debug-results'),
   appVersion: document.getElementById('app-version'),
 };
 
@@ -219,58 +211,13 @@ function updateBoardStates() {
   }
 }
 
-function addHistory(kind, text, chips = []) {
-  state.history.unshift({
-    kind,
-    text,
-    chips,
-    time: new Date().toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }),
-  });
-  if (state.history.length > 40) state.history.length = 40;
-  renderHistory();
-}
-
-function renderHistory() {
-  dom.history.replaceChildren();
-  if (state.history.length === 0) {
-    dom.history.append(el('div', 'empty-state', 'No draws recorded.'));
-    return;
-  }
-
-  state.history.forEach((item) => {
-    const entry = el('div', `history-item ${item.kind}`);
-    entry.append(el('time', '', item.time), document.createTextNode(item.text));
-    if (item.chips.length) {
-      const chips = el('div', 'history-chips');
-      item.chips.forEach((chip) => chips.append(el('span', '', chip)));
-      entry.append(chips);
-    }
-    dom.history.append(entry);
-  });
-}
-
-function startNewSession({ clearHistory = false } = {}) {
+function startNewSession() {
   state.session = createSession({ numPlayers: state.numPlayers });
   state.activePlayer = Math.min(state.activePlayer, state.numPlayers - 1);
-  if (clearHistory) state.history = [];
 
   renderPlayerSelector();
   renderActivePlayerSelect();
   renderBoards();
-
-  const chips = [
-    ...state.session.revealedStandard.map((card) => card.nome),
-    ...state.session.cursedByPlayer.map(([card]) => `☠ ${card.nome}`),
-  ];
-  addHistory(
-    'draw',
-    `New visit · ${state.numPlayers} player(s) · ${standardRevealCount(state.numPlayers)} Standard + ${state.numPlayers} Cursed`,
-    chips,
-  );
   updateBoardStates();
 }
 
@@ -283,115 +230,13 @@ function handleBuy(event) {
   const result = purchase(state.session, playerIndex, source, button.dataset.uid);
   if (!result.ok) return;
 
-  addHistory(
-    'buy',
-    `Player ${playerIndex + 1} purchased ${result.card.nome}${source === 'cursed' ? ' (own Cursed)' : ''}`,
-    [result.card.nome],
-  );
   updateBoardStates();
 }
 
-function formatPercent(value) {
-  return `${(value * 100).toFixed(1)}%`;
-}
-
-function deltaCell(observed, expected) {
-  const delta = observed - expected;
-  const cell = el('td', delta >= 0 ? 'delta-positive' : 'delta-negative');
-  cell.textContent = `${delta >= 0 ? '+' : ''}${(delta * 100).toFixed(1)}pp`;
-  return cell;
-}
-
-function buildTable(headers, rows) {
-  const table = el('table');
-  const thead = el('thead');
-  const headRow = el('tr');
-  headers.forEach((header) => headRow.append(el('th', '', header)));
-  thead.append(headRow);
-  const tbody = el('tbody');
-  rows.forEach((row) => tbody.append(row));
-  table.append(thead, tbody);
-  return table;
-}
-
-function renderDebug(data, elapsedMs) {
-  dom.debugResults.replaceChildren();
-
-  const summary = el(
-    'p',
-    'debug-note',
-    `${data.trials} draws · ${data.numPlayers} player(s) · ${elapsedMs.toFixed(0)} ms. ` +
-      `The "Δ" column shows the difference between observed frequency and theoretical probability.`,
-  );
-  dom.debugResults.append(summary);
-
-  const standardRows = data.standard.map((card) => {
-    const row = el('tr');
-    row.append(
-      el('td', '', card.nome),
-      el('td', '', `×${card.copie}`),
-      el('td', '', formatPercent(card.observed)),
-      el('td', '', formatPercent(card.expected)),
-      deltaCell(card.observed, card.expected),
-      el('td', '', formatPercent(card.drawShare)),
-      el('td', '', formatPercent(card.expectedDraw)),
-    );
-    return row;
-  });
-  dom.debugResults.append(
-    el('h3', '', 'Standard · board presence and draw weight'),
-    buildTable(
-      ['Card', 'Copies', 'Obs.', 'Expected', 'Δ', 'Draws', 'Expected'],
-      standardRows,
-    ),
-  );
-
-  const cursedRows = data.cursed.map((card) => {
-    const row = el('tr');
-    row.append(
-      el('td', '', card.nome),
-      el('td', '', formatPercent(card.observed)),
-      el('td', '', formatPercent(card.expected)),
-      deltaCell(card.observed, card.expected),
-    );
-    return row;
-  });
-  dom.debugResults.append(
-    el('h3', '', 'Cursed · presence among players'),
-    buildTable(['Card', 'Obs.', 'Expected', 'Δ'], cursedRows),
-  );
-
-  dom.debugResults.append(
-    el(
-      'p',
-      'debug-note',
-      'Theory: P(Standard present) = 1 − C(16−c, k)/C(16, k), where c = copies and k = revealed cards; ' +
-        'P(Cursed present) = 1 − C(7, p)/C(8, p), where p = players. The draw weight of a Standard type is c/16.',
-    ),
-  );
-}
-
-function runDebug() {
-  const rawTrials = Number(dom.debugTrials.value);
-  const trials = Math.min(
-    100000,
-    Math.max(100, Number.isFinite(rawTrials) ? Math.floor(rawTrials) : 1000),
-  );
-  const rawSeed = Number(dom.debugSeed.value.trim());
-  const seed = dom.debugSeed.value.trim() !== '' && Number.isFinite(rawSeed)
-    ? rawSeed
-    : undefined;
-
-  const started = performance.now();
-  const data = simulateFrequencies({ numPlayers: state.numPlayers, trials, seed });
-  renderDebug(data, performance.now() - started);
-}
-
 dom.drawBtn.addEventListener('click', () => startNewSession());
-dom.reshuffleBtn.addEventListener('click', () => startNewSession({ clearHistory: true }));
+dom.reshuffleBtn.addEventListener('click', () => startNewSession());
 dom.resetBtn.addEventListener('click', () => {
   resetChoices(state.session);
-  addHistory('buy', 'Picks reset · same revealed cards, purchases cleared.');
   updateBoardStates();
 });
 dom.activePlayer.addEventListener('change', () => {
@@ -399,7 +244,6 @@ dom.activePlayer.addEventListener('change', () => {
   updateBoardStates();
 });
 dom.wareBoard.addEventListener('click', handleBuy);
-dom.runDebugBtn.addEventListener('click', runDebug);
 
 dom.appVersion.textContent = `v${APP_VERSION}`;
 startNewSession();
