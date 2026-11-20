@@ -1,0 +1,103 @@
+# SPECIFICHE PER WEB APP: SIMULATORE ESTRAZIONE MERCI DEL MERCANTE (BLITZ MODE)
+
+## 1. PANORAMICA DEL SISTEMA
+L'applicazione deve simulare la fase di acquisto dal Mercante in un gioco da tavolo (stile Slay the Spire - Blitz Mode). Esistono due mazzi distinti di carte "Merce" (Wares):
+- **Mazzo Standard (Standard Wares)**: 16 carte totali (12 tipologie uniche, di cui 4 presenti in duplice copia).
+- **Mazzo Maledetto (Cursed Wares)**: 8 carte totali (tutte uniche).
+
+---
+
+## 2. STRUTTURA DEI DATI (MAZZI)
+
+### A. Mazzo Standard (16 carte totali)
+Ogni oggetto nel mazzo deve avere: `id`, `nome`, `effetto`, `copie`.
+
+1. **Card Removal Service** (Copie: 2)
+   - Effetto: Remove a card.
+2. **Card Transform Service** (Copie: 1)
+   - Effetto: Transform a card.
+3. **Card Upgrade Service** (Copie: 1)
+   - Effetto: Upgrade a card of your choice.
+4. **Random Upgrades** (Copie: 1)
+   - Effetto: Upgrade 2 random cards.
+5. **Potions** (Copie: 2)
+   - Effetto: Gain 2 potions.
+6. **Relic** (Copie: 2)
+   - Effetto: Gain 1 random relic.
+7. **Card Rewards** (Copie: 1)
+   - Effetto: Receive 2 card rewards. (Nota: nel documento originale è presente l'intestazione "Card Reward" subito prima di questa voce).
+8. **Upgraded Card Reward** (Copie: 1)
+   - Effetto: Receive 1 upgraded card reward.
+9. **Colorless Reward** (Copie: 2)
+   - Effetto: Receive 1 colorless card reward.
+10. **Prismatic Card Reward** (Copie: 1)
+    - Effetto: Receive 1 card reward from another character of your choice.
+11. **Rare Card Reward** (Copie: 1)
+    - Effetto: Receive 1 rare card reward.
+12. **Random Upgraded Rare** (Copie: 1)
+    - Effetto: Receive 1 random upgraded rare card.
+
+*Verifica totale carte Standard: 2 + 1 + 1 + 1 + 2 + 2 + 1 + 1 + 2 + 1 + 1 + 1 = 16 carte.*
+
+### B. Mazzo Maledetto (8 carte totali)
+Ogni carta maledetta comporta **sempre** una penalità base aggiuntiva al suo effetto specifico.
+- **Penalità comune a tutte le Cursed Wares**: Se scelta, il giocatore ottiene **1 Maledizione casuale (random curse)**.
+
+1. **Cursed Relics** (Copie: 1)
+   - Effetto: Obtain 2 random relics (+ 1 random curse).
+2. **Cursed Heal** (Copie: 1)
+   - Effetto: Restore 1 lost Max HP, then heal to full HP (+ 1 random curse).
+3. **Cursed Card Rewards** (Copie: 1)
+   - Effetto: Receive 2 card rewards and 1 rare card reward (+ 1 random curse).
+4. **Cursed Upgraded Rare Card Reward** (Copie: 1)
+   - Effetto: Receive 1 upgraded rare card reward (+ 1 random curse). [Nota: nel testo originale scritto come "updated rare card reward"].
+5. **Cursed Upgrades** (Copie: 1)
+   - Effetto: Upgrade 2 cards of your choice (+ 1 random curse).
+6. **Cursed Choices** (Copie: 1)
+   - Effetto: You may purchase 2 more wares (+ 1 random curse).
+7. **Cursed Transforms** (Copie: 1)
+   - Effetto: Transform 2 cards (+ 1 random curse).
+8. **Cursed Prismatic Rare Reward** (Copie: 1)
+   - Effetto: Receive 1 rare card from another character of your choice (+ 1 random curse).
+
+---
+
+## 3. LOGICA DI ESTRAZIONE E SETUP (FLUSSO DI GIOCO)
+
+### Step 1: Configurazione Partita
+- L'utente seleziona il **numero di giocatori** (es. da 1 a 4 giocatori).
+
+### Step 2: Mescolamento (Shuffle)
+- All'ingresso dal Mercante, entrambi i mazzi (Standard e Maledetto) vengono mescolati casualmente (senza reimmissione durante la stessa visita al mercante).
+
+### Step 3: Rivelazione delle Carte (Estrazione)
+- **Carte Standard Rivelate (Pool condiviso)**:
+  - Se `num_giocatori == 1` (Solo): pesca e rivela **3** carte dal Mazzo Standard.
+  - Se `num_giocatori > 1`: pesca e rivela **2 * num_giocatori** carte dal Mazzo Standard (es. 2 giocatori = 4 carte; 3 giocatori = 6 carte; 4 giocatori = 8 carte).
+- **Carte Maledette Rivelate (Personali per giocatore)**:
+  - Pesca e rivela **1** carta dal Mazzo Maledetto **per ciascun giocatore** (assegnata individualmente a quel giocatore; gli altri giocatori non possono scegliere la carta maledetta altrui).
+
+---
+
+## 4. REGOLE DI ACQUISTO E INTERAZIONE (SIMULAZIONE OPZIONALE/UI)
+
+Se la web app include anche la simulazione della selezione/acquisto da parte dei giocatori:
+- **Limite base di acquisto per giocatore**: Massimo **2 merci** totali per visita.
+- **Combinazioni consentite**:
+  1. **2 carte** dal pool delle Standard Wares rivelate.
+  2. **1 carta** dal pool delle Standard Wares rivelate + **1 carta** (la propria) Cursed Ware rivelata.
+  *(Nota: Non è possibile prendere 2 carte maledette perché ogni giocatore ne rivela solo 1, a meno di effetti speciali).*
+- **Eccezione "Cursed Choices"**:
+  - Se un giocatore sceglie la propria carta maledetta **Cursed Choices**, il suo limite massimo di acquisto aumenta di **+2 merci** (può quindi acquistare fino a 4 merci totali in quella visita, attingendo dalle carte standard rivelate rimanenti).
+
+---
+
+## 5. REQUISITI FUNZIONALI PER LA WEB APP
+1. **Selettore Giocatori**: Pulsanti o dropdown per scegliere tra 1 (Solo), 2, 3 o 4 giocatori.
+2. **Pulsante "Entra dal Mercante / Nuova Estrazione"**: Mescola i mazzi e genera la plancia con le carte estratte.
+3. **Visualizzazione Plancia**:
+   - Sezione superiore/centrale: **Standard Wares Disponibili** (con indicazione chiara di titolo ed effetto).
+   - Sezione inferiore/divisa per giocatore: **Cursed Ware del Giocatore X** (evidenziando l'avviso "+1 Random Curse").
+4. **Interattività (Consigliata)**:
+   - Possibilità di cliccare sulle carte per simularne l'acquisto da parte di un giocatore attivo, disabilitando le carte già prese dal pool comune e applicando automaticamente il vincolo di massimo 2 scelte (o 4 se viene selezionata *Cursed Choices*).
+   - Pulsante "Reset Scelte" (mantiene le stesse carte estratte ma annulla gli acquisti) e "Rimescola Tutto" (nuovo mercante).

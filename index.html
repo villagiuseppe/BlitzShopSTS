@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Static simulator of Merchant ware draws in Blitz Mode: 16 Standard Wares and 8 Cursed Wares."
+    />
+    <title>Merchant Blitz · Ware Draw Simulator</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">MB</span>
+        <div>
+          <h1>Merchant Blitz</h1>
+          <p>Ware draw simulator · 16 Standard + 8 Cursed</p>
+        </div>
+      </div>
+      <div id="header-stats" class="header-stats"></div>
+    </header>
+
+    <main class="layout">
+      <section class="panel controls" aria-labelledby="controls-title">
+        <h2 id="controls-title">Game setup</h2>
+
+        <fieldset class="player-fieldset">
+          <legend>Number of players</legend>
+          <div id="player-selector" class="player-selector"></div>
+        </fieldset>
+
+        <div class="button-row">
+          <button id="draw-btn" class="btn btn-primary" type="button">
+            Enter Merchant / New Draw
+          </button>
+          <button id="reset-choices-btn" class="btn" type="button">Reset Picks</button>
+          <button id="reshuffle-btn" class="btn btn-ghost" type="button">Reshuffle All</button>
+        </div>
+
+        <div class="active-player-row">
+          <label for="active-player">Active player</label>
+          <select id="active-player"></select>
+          <span id="active-hint" class="hint">Click a card to purchase it.</span>
+        </div>
+
+        <div id="pool-summary" class="pool-summary"></div>
+      </section>
+
+      <section class="panel board" aria-labelledby="board-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="board-title">
+              Standard Wares <span class="tag">Shared pool</span>
+            </h2>
+            <p id="standard-subtitle">Waiting for the first draw.</p>
+          </div>
+          <span id="standard-counter" class="counter"></span>
+        </div>
+        <div id="standard-board" class="card-grid"></div>
+
+        <div class="section-heading cursed-heading">
+          <div>
+            <h2>Cursed Wares <span class="tag tag-danger">Personal</span></h2>
+            <p>1 card per player: no one can pick someone else's card.</p>
+          </div>
+        </div>
+        <div id="cursed-board" class="cursed-grid"></div>
+      </section>
+
+      <section class="panel side" aria-labelledby="side-title">
+        <h2 id="side-title">History &amp; tests</h2>
+
+        <h3>Draw history</h3>
+        <div id="history" class="history" aria-live="polite"></div>
+
+        <h3>Debug / probability check</h3>
+        <div class="debug-controls">
+          <label for="debug-trials">Simulations</label>
+          <input id="debug-trials" type="number" min="100" max="100000" step="100" value="1000" />
+          <label for="debug-seed">Seed</label>
+          <input id="debug-seed" type="text" placeholder="random" inputmode="numeric" />
+          <button id="run-debug-btn" class="btn btn-small" type="button">Run simulation</button>
+        </div>
+        <div id="debug-results" class="debug-results"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
