@@ -143,17 +143,16 @@ function renderPlayerSelector() {
 
 function renderActivePlayerButtons() {
   dom.activePlayer.replaceChildren();
-  for (let p = RULES.MIN_PLAYERS; p <= RULES.MAX_PLAYERS; p += 1) {
-    const summary = playerSummary(state.session, p);
+  for (let playerIndex = 0; playerIndex < state.numPlayers; playerIndex += 1) {
+    const summary = playerSummary(state.session, playerIndex);
     const classes = ['active-player-chip'];
-    if (p === state.activePlayer) classes.push('active');
+    if (playerIndex === state.activePlayer) classes.push('active');
     if (summary.used >= summary.limit) classes.push('complete');
-    const chip = el('button', classes.join(' '), `P${p + 1}`);
+    const chip = el('button', classes.join(' '), `P${playerIndex + 1}`);
     chip.type = 'button';
-    chip.hidden = p > state.numPlayers;
-    chip.setAttribute('aria-pressed', String(p === state.activePlayer));
+    chip.setAttribute('aria-pressed', String(playerIndex === state.activePlayer));
     chip.addEventListener('click', () => {
-      state.activePlayer = p;
+      state.activePlayer = playerIndex;
       updateBoardStates();
     });
     dom.activePlayer.append(chip);
