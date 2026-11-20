@@ -5,21 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Static simulator of Merchant ware draws in Blitz Mode: 16 Standard Wares and 8 Cursed Wares."
+      content="Static companion app for drawing Merchant wares in Shop Blitz Mode: Standard and Cursed cards."
     />
-    <title>Merchant Blitz · Ware Draw Simulator</title>
+    <title>Shop Blitz Mode · Card Draw Simulator</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <header class="site-header">
       <div class="brand">
-        <span class="brand-mark" aria-hidden="true">MB</span>
+        <span class="brand-mark" aria-hidden="true">SB</span>
         <div>
-          <h1>Merchant Blitz</h1>
-          <p>Ware draw simulator · 16 Standard + 8 Cursed</p>
+          <h1>Shop Blitz Mode</h1>
+          <p>Card draw simulator</p>
         </div>
       </div>
-      <div id="header-stats" class="header-stats"></div>
     </header>
 
     <main class="layout">
@@ -32,9 +31,7 @@
         </fieldset>
 
         <div class="button-row">
-          <button id="draw-btn" class="btn btn-primary" type="button">
-            Enter Merchant / New Draw
-          </button>
+          <button id="draw-btn" class="btn btn-primary" type="button">Draw</button>
           <button id="reset-choices-btn" class="btn" type="button">Reset Picks</button>
           <button id="reshuffle-btn" class="btn btn-ghost" type="button">Reshuffle All</button>
         </div>
@@ -44,20 +41,12 @@
           <select id="active-player"></select>
           <span id="active-hint" class="hint">Click a card to purchase it.</span>
         </div>
-
-        <div id="pool-summary" class="pool-summary"></div>
       </section>
 
       <section class="panel board" aria-labelledby="board-title">
-        <div class="section-heading">
-          <div>
-            <h2 id="board-title">
-              Revealed Wares <span class="tag">Shared + personal</span>
-            </h2>
-            <p id="board-subtitle">Waiting for the first draw.</p>
-          </div>
-          <span id="board-counter" class="counter"></span>
-        </div>
+        <h2 id="board-title">
+          Revealed Cards <span class="tag">Shared + personal</span>
+        </h2>
         <div id="player-statuses" class="player-statuses"></div>
         <div id="ware-board" class="card-grid"></div>
       </section>
@@ -79,6 +68,14 @@
         <div id="debug-results" class="debug-results"></div>
       </section>
     </main>
+
+    <footer class="site-footer">
+      <p>
+        Fan Made companion app for
+        <a href="https://contentiongames.com/games/slay/" target="_blank" rel="noopener noreferrer">Slay the Spire: the Board Game</a>
+      </p>
+      <span id="app-version"></span>
+    </footer>
 
     <script type="module" src="./src/main.js"></script>
   </body>
