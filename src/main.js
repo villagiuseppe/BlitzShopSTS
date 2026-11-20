@@ -26,10 +26,10 @@ const dom = {
   activePlayer: document.getElementById('active-player'),
   activeHint: document.getElementById('active-hint'),
   poolSummary: document.getElementById('pool-summary'),
-  standardBoard: document.getElementById('standard-board'),
-  standardSubtitle: document.getElementById('standard-subtitle'),
-  standardCounter: document.getElementById('standard-counter'),
-  cursedBoard: document.getElementById('cursed-board'),
+  wareBoard: document.getElementById('ware-board'),
+  boardSubtitle: document.getElementById('board-subtitle'),
+  boardCounter: document.getElementById('board-counter'),
+  playerStatuses: document.getElementById('player-statuses'),
   history: document.getElementById('history'),
   debugTrials: document.getElementById('debug-trials'),
   debugSeed: document.getElementById('debug-seed'),
@@ -76,9 +76,14 @@ function attachImage(img, fallback, card) {
   img.loading = 'lazy';
 }
 
-function makeStandardCard(card, index) {
-  const slot = el('div', 'card-slot');
+function makeWareCard(card, index, source, playerIndex = null) {
+  const slot = el(
+    'div',
+    source === 'cursed' ? 'card-slot cursed-card' : 'card-slot',
+  );
   slot.dataset.uid = card.uid;
+  slot.dataset.source = source;
+  if (playerIndex !== null) slot.dataset.player = String(playerIndex);
   slot.style.setProperty('--delay', `${index * 65}ms`);
 
   const flip = el('div', 'card-flip');
@@ -86,8 +91,9 @@ function makeStandardCard(card, index) {
 
   const button = el('button', 'card-button');
   button.type = 'button';
-  button.dataset.source = 'standard';
+  button.dataset.source = source;
   button.dataset.uid = card.uid;
+  if (playerIndex !== null) button.dataset.player = String(playerIndex);
 
   const img = el('img');
   const fallback = makeFallback(card);
@@ -96,8 +102,16 @@ function makeStandardCard(card, index) {
 
   const caption = el('div', 'card-caption');
   caption.append(el('strong', '', card.nome), el('span', '', card.effetto));
+  if (source === 'cursed') {
+    caption.append(
+      el('span', 'curse-note', `+1 Random Curse · Player ${playerIndex + 1} only`),
+    );
+  }
 
-  const badge = el('span', 'copies-badge', `×${card.copie}`);
+  const badgeClass = source === 'cursed' ? 'copies-badge cursed-badge' : 'copies-badge';
+  const badgeText =
+    source === 'cursed' ? `P${playerIndex + 1} · CURSED` : `×${card.copie}`;
+  const badge = el('span', badgeClass, badgeText);
   const overlay = el('div', 'taken-overlay', 'PURCHASED');
   overlay.hidden = true;
 
@@ -105,38 +119,6 @@ function makeStandardCard(card, index) {
   flip.append(front);
   slot.append(flip, overlay);
   return slot;
-}
-
-function makeCursedPanel(card, playerIndex) {
-  const panel = el('div', 'cursed-panel');
-  panel.dataset.player = String(playerIndex);
-
-  const thumb = el('div', 'cursed-thumb');
-  const img = el('img');
-  const fallback = makeFallback(card);
-  attachImage(img, fallback, card);
-  thumb.append(img, fallback);
-
-  const info = el('div', 'cursed-info');
-  info.append(
-    el('h4', '', `Player ${playerIndex + 1} · ${card.nome}`),
-    el('p', '', card.effetto),
-    el('span', 'curse-warning', '+1 Random Curse'),
-  );
-
-  const stateLine = el('div', 'player-state');
-  stateLine.dataset.playerState = String(playerIndex);
-  info.append(stateLine);
-
-  const button = el('button', 'btn btn-small', 'Buy your Cursed');
-  button.type = 'button';
-  button.dataset.source = 'cursed';
-  button.dataset.uid = card.uid;
-  button.dataset.player = String(playerIndex);
-  info.append(button);
-
-  panel.append(thumb, info);
-  return panel;
 }
 
 function renderPlayerSelector() {
@@ -169,16 +151,18 @@ function renderActivePlayerSelect() {
 
 function renderBoards() {
   const session = state.session;
-  dom.standardBoard.replaceChildren(
-    ...session.revealedStandard.map(makeStandardCard),
+  const slots = session.revealedStandard.map((card, index) =>
+    makeWareCard(card, index, 'standard'),
   );
-  dom.cursedBoard.replaceChildren(
-    ...session.cursedByPlayer.map(([card], index) => makeCursedPanel(card, index)),
-  );
-  dom.standardSubtitle.textContent =
+  session.cursedByPlayer.forEach(([card], playerIndex) => {
+    slots.push(makeWareCard(card, slots.length, 'cursed', playerIndex));
+  });
+  dom.wareBoard.replaceChildren(...slots);
+
+  dom.boardSubtitle.textContent =
     state.numPlayers === 1
-      ? 'Solo: 3 cards revealed from the 16-card Standard deck.'
-      : `${state.numPlayers} players: ${RULES.STANDARD_PER_PLAYER} × ${state.numPlayers} = ${standardRevealCount(state.numPlayers)} cards revealed from the shared pool.`;
+      ? 'Solo: 3 shared Standard cards + 1 personal Cursed card.'
+      : `${state.numPlayers} players: ${standardRevealCount(state.numPlayers)} shared Standard cards + ${state.numPlayers} personal Cursed cards, all in one board.`;
 }
 
 function reasonLabel(reason) {
@@ -199,44 +183,47 @@ function updateBoardStates() {
   const summary = remainingSummary(session);
   const active = playerSummary(session, state.activePlayer);
 
-  dom.standardBoard.querySelectorAll('.card-slot').forEach((slot) => {
+  dom.wareBoard.querySelectorAll('.card-slot').forEach((slot) => {
     const uid = slot.dataset.uid;
-    const taken = isStandardTaken(session, uid);
-    const check = canPurchase(session, state.activePlayer, 'standard', uid);
+    const source = slot.dataset.source;
+    const owner = slot.dataset.player === undefined ? null : Number(slot.dataset.player);
+    const check = canPurchase(session, state.activePlayer, source, uid);
+    const taken =
+      source === 'standard'
+        ? isStandardTaken(session, uid)
+        : session.purchases.some((list) =>
+            list.some((item) => item.source === 'cursed' && item.uid === uid),
+          );
+    const otherPlayer = source === 'cursed' && owner !== state.activePlayer;
     const button = slot.querySelector('.card-button');
     const overlay = slot.querySelector('.taken-overlay');
 
     slot.classList.toggle('taken', taken);
+    slot.classList.toggle('other-player', otherPlayer);
     button.disabled = !check.ok;
-    button.title = taken ? 'Already purchased' : check.ok ? 'Purchase' : reasonLabel(check.reason);
+    button.title = taken
+      ? 'Already purchased'
+      : otherPlayer
+        ? `Only Player ${owner + 1} can take this`
+        : check.ok
+          ? 'Purchase'
+          : reasonLabel(check.reason);
     overlay.hidden = !taken;
   });
 
-  dom.cursedBoard.querySelectorAll('.cursed-panel').forEach((panel) => {
-    const playerIndex = Number(panel.dataset.player);
-    const card = session.cursedByPlayer[playerIndex][0];
-    const check = canPurchase(session, playerIndex, 'cursed', card.uid);
-    const button = panel.querySelector('button[data-source="cursed"]');
-    const taken = check.reason === 'already-taken';
-
-    panel.classList.toggle('is-active', playerIndex === state.activePlayer);
-    button.disabled = !check.ok;
-    button.title = taken ? 'Already purchased' : check.ok ? 'Purchase' : reasonLabel(check.reason);
-    button.textContent = taken ? 'Purchased' : 'Buy your Cursed';
-
-    const ps = playerSummary(session, playerIndex);
-    const line = panel.querySelector('[data-player-state]');
-    line.replaceChildren();
-    line.append(
-      document.createTextNode('Purchases: '),
-      el('b', '', `${ps.used}/${ps.limit}`),
-      document.createTextNode(
-        ps.cursedChosen ? ' · Cursed Choices bonus active' : '',
-      ),
+  dom.playerStatuses.replaceChildren();
+  for (let p = 0; p < session.numPlayers; p += 1) {
+    const ps = playerSummary(session, p);
+    const status = el(
+      'div',
+      p === state.activePlayer ? 'player-status active' : 'player-status',
     );
-  });
+    status.append(el('span', '', `P${p + 1}`), el('b', '', `${ps.used}/${ps.limit}`));
+    if (ps.cursedChosen) status.append(el('span', 'bonus', '+2'));
+    dom.playerStatuses.append(status);
+  }
 
-  dom.standardCounter.textContent = `${summary.availableStandard}/${summary.revealedStandard} available`;
+  dom.boardCounter.textContent = `${summary.availableStandard}/${summary.revealedStandard} standard available`;
 
   const totalPurchases = session.purchases.reduce((sum, list) => sum + list.length, 0);
   dom.poolSummary.replaceChildren();
@@ -327,8 +314,7 @@ function handleBuy(event) {
   if (!button || button.disabled) return;
 
   const source = button.dataset.source;
-  const playerIndex =
-    source === 'cursed' ? Number(button.dataset.player) : state.activePlayer;
+  const playerIndex = state.activePlayer;
   const result = purchase(state.session, playerIndex, source, button.dataset.uid);
   if (!result.ok) return;
 
@@ -447,8 +433,7 @@ dom.activePlayer.addEventListener('change', () => {
   state.activePlayer = Number(dom.activePlayer.value);
   updateBoardStates();
 });
-dom.standardBoard.addEventListener('click', handleBuy);
-dom.cursedBoard.addEventListener('click', handleBuy);
+dom.wareBoard.addEventListener('click', handleBuy);
 dom.runDebugBtn.addEventListener('click', runDebug);
 
 startNewSession();
