@@ -19,7 +19,6 @@ const dom = {
   playerSelector: document.getElementById('player-selector'),
   drawBtn: document.getElementById('draw-btn'),
   resetBtn: document.getElementById('reset-choices-btn'),
-  reshuffleBtn: document.getElementById('reshuffle-btn'),
   activePlayer: document.getElementById('active-player'),
   activeHint: document.getElementById('active-hint'),
   wareBoard: document.getElementById('ware-board'),
@@ -262,7 +261,6 @@ function handleBuy(event) {
 }
 
 dom.drawBtn.addEventListener('click', () => startNewSession());
-dom.reshuffleBtn.addEventListener('click', () => startNewSession());
 dom.resetBtn.addEventListener('click', () => {
   resetChoices(state.session);
   updateBoardStates();

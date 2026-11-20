@@ -190,10 +190,6 @@ h2 {
   font-weight: 700;
 }
 
-.btn-ghost {
-  background: transparent;
-}
-
 .active-player-row {
   display: flex;
   flex-wrap: wrap;
