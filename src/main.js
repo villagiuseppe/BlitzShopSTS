@@ -83,11 +83,12 @@ function makeWareCard(card, index, source, playerIndex = null) {
   attachImage(img, fallback, card);
   button.append(img, fallback);
 
-  const badge = el(
-    'span',
-    source === 'cursed' ? 'copies-badge cursed-badge' : 'copies-badge',
-    source === 'cursed' ? `P${playerIndex + 1}` : `×${card.copie}`,
-  );
+  const frontChildren = [button];
+  if (source === 'cursed') {
+    frontChildren.push(
+      el('span', 'copies-badge cursed-badge', `P${playerIndex + 1}`),
+    );
+  }
 
   const info = el('div', 'card-info');
   info.hidden = true;
@@ -116,7 +117,8 @@ function makeWareCard(card, index, source, playerIndex = null) {
   const overlay = el('div', 'taken-overlay', 'PURCHASED');
   overlay.hidden = true;
 
-  front.append(button, badge, info, infoButton);
+  frontChildren.push(info, infoButton);
+  front.append(...frontChildren);
   flip.append(front);
   slot.append(flip, overlay);
   return slot;
