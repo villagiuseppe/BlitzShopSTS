@@ -26,13 +26,14 @@
 
         <fieldset class="player-fieldset">
           <legend>Number of players</legend>
-          <div id="player-selector" class="player-selector"></div>
+          <div class="setup-row">
+            <div id="player-selector" class="player-selector"></div>
+            <div class="button-row">
+              <button id="draw-btn" class="btn" type="button">Draw</button>
+              <button id="reset-choices-btn" class="btn" type="button">Reset</button>
+            </div>
+          </div>
         </fieldset>
-
-        <div class="button-row">
-          <button id="draw-btn" class="btn btn-primary" type="button">Draw</button>
-          <button id="reset-choices-btn" class="btn" type="button">Reset Picks</button>
-        </div>
 
         <div class="active-player-row">
           <label for="active-player">Active player</label>
