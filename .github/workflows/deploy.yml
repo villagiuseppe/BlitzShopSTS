@@ -33,6 +33,10 @@ jobs:
           cp index.html styles.css .nojekyll _site/
           cp -r assets src _site/
 
+      - name: Set published app version
+        run: |
+          echo "export const APP_VERSION = '1.0.${{ github.run_number }}';" > _site/src/version.js
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

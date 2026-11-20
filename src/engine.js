@@ -196,6 +196,12 @@ export function canPurchase(session, playerIndex, source, uid) {
     if (isStandardTaken(session, uid)) {
       return { ok: false, reason: 'already-taken', card };
     }
+    const hasSameType = session.purchases[playerIndex].some(
+      (item) => item.typeId === card.id,
+    );
+    if (hasSameType) {
+      return { ok: false, reason: 'duplicate-card', card };
+    }
     return { ok: true, reason: 'ok', card };
   }
 

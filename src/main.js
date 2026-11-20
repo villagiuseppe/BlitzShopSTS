@@ -4,12 +4,12 @@ import {
   standardRevealCount,
   purchase,
   resetChoices,
-  remainingSummary,
   playerSummary,
   isStandardTaken,
   canPurchase,
   simulateFrequencies,
 } from './engine.js';
+import { APP_VERSION } from './version.js';
 
 const state = {
   numPlayers: 1,
@@ -25,17 +25,14 @@ const dom = {
   reshuffleBtn: document.getElementById('reshuffle-btn'),
   activePlayer: document.getElementById('active-player'),
   activeHint: document.getElementById('active-hint'),
-  poolSummary: document.getElementById('pool-summary'),
   wareBoard: document.getElementById('ware-board'),
-  boardSubtitle: document.getElementById('board-subtitle'),
-  boardCounter: document.getElementById('board-counter'),
   playerStatuses: document.getElementById('player-statuses'),
   history: document.getElementById('history'),
   debugTrials: document.getElementById('debug-trials'),
   debugSeed: document.getElementById('debug-seed'),
   runDebugBtn: document.getElementById('run-debug-btn'),
   debugResults: document.getElementById('debug-results'),
-  headerStats: document.getElementById('header-stats'),
+  appVersion: document.getElementById('app-version'),
 };
 
 function el(tag, className, text) {
@@ -43,12 +40,6 @@ function el(tag, className, text) {
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
-}
-
-function appendStat(parent, label, value, danger = false) {
-  const stat = el('div', danger ? 'stat danger' : 'stat');
-  stat.append(el('span', '', label), el('strong', '', String(value)));
-  parent.append(stat);
 }
 
 function makeFallback(card) {
@@ -127,7 +118,7 @@ function renderPlayerSelector() {
     const chip = el(
       'button',
       p === state.numPlayers ? 'player-chip active' : 'player-chip',
-      p === 1 ? '1 · Solo' : String(p),
+      String(p),
     );
     chip.type = 'button';
     chip.addEventListener('click', () => {
@@ -158,11 +149,6 @@ function renderBoards() {
     slots.push(makeWareCard(card, slots.length, 'cursed', playerIndex));
   });
   dom.wareBoard.replaceChildren(...slots);
-
-  dom.boardSubtitle.textContent =
-    state.numPlayers === 1
-      ? 'Solo: 3 shared Standard cards + 1 personal Cursed card.'
-      : `${state.numPlayers} players: ${standardRevealCount(state.numPlayers)} shared Standard cards + ${state.numPlayers} personal Cursed cards, all in one board.`;
 }
 
 function reasonLabel(reason) {
@@ -173,6 +159,8 @@ function reasonLabel(reason) {
       return 'Card already taken';
     case 'not-your-cursed':
       return 'Not your Cursed Ware';
+    case 'duplicate-card':
+      return 'Same card already selected';
     default:
       return 'Unavailable';
   }
@@ -180,7 +168,6 @@ function reasonLabel(reason) {
 
 function updateBoardStates() {
   const session = state.session;
-  const summary = remainingSummary(session);
   const active = playerSummary(session, state.activePlayer);
 
   dom.wareBoard.querySelectorAll('.card-slot').forEach((slot) => {
@@ -223,34 +210,12 @@ function updateBoardStates() {
     dom.playerStatuses.append(status);
   }
 
-  dom.boardCounter.textContent = `${summary.availableStandard}/${summary.revealedStandard} standard available`;
-
-  const totalPurchases = session.purchases.reduce((sum, list) => sum + list.length, 0);
-  dom.poolSummary.replaceChildren();
-  appendStat(dom.poolSummary, 'Standard left', summary.standardDeck);
-  appendStat(dom.poolSummary, 'Standard available', summary.availableStandard);
-  appendStat(dom.poolSummary, 'Cursed left', summary.cursedDeck, true);
-  appendStat(dom.poolSummary, 'Wares purchased', totalPurchases);
-
-  dom.headerStats.replaceChildren();
-  const pills = [
-    ['Players', state.numPlayers],
-    ['Standard revealed', summary.revealedStandard],
-    ['Cursed revealed', summary.cursedRevealed],
-    ['Visits logged', state.history.filter((h) => h.kind === 'draw').length],
-  ];
-  pills.forEach(([label, value]) => {
-    const pill = el('div', 'pill');
-    pill.append(document.createTextNode(`${label} `), el('strong', '', String(value)));
-    dom.headerStats.append(pill);
-  });
-
   if (active.remaining === 0) {
-    dom.activeHint.textContent = `Player ${state.activePlayer + 1}: purchase limit reached (${active.used}/${active.limit}).`;
+    dom.activeHint.textContent = `Player ${state.activePlayer + 1}: purchase limit reached.`;
   } else if (active.cursedChosen && active.cursedCard?.id === 'cursed-choices') {
-    dom.activeHint.textContent = `Cursed Choices bonus: limit ${active.limit} wares (${active.used} used).`;
+    dom.activeHint.textContent = 'Cursed Choices bonus active.';
   } else {
-    dom.activeHint.textContent = `Click a card to purchase it · limit ${active.limit} wares.`;
+    dom.activeHint.textContent = 'Click a card to select it.';
   }
 }
 
@@ -436,4 +401,5 @@ dom.activePlayer.addEventListener('change', () => {
 dom.wareBoard.addEventListener('click', handleBuy);
 dom.runDebugBtn.addEventListener('click', runDebug);
 
+dom.appVersion.textContent = `v${APP_VERSION}`;
 startNewSession();
