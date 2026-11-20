@@ -376,26 +376,57 @@ input[type="text"] {
   font-size: 0.85rem;
 }
 
-.card-caption {
+.card-info {
   position: absolute;
   inset: auto 0 0;
-  padding: 2.4rem 0.6rem 0.6rem;
-  background: linear-gradient(transparent, rgba(6, 8, 12, 0.94) 55%);
-  pointer-events: none;
+  z-index: 2;
+  padding: 2.4rem 2.6rem 0.6rem 0.6rem;
+  background: rgba(6, 8, 12, 0.5);
 }
 
-.card-caption strong {
+.card-info strong {
   display: block;
   font-size: 0.78rem;
   line-height: 1.2;
 }
 
-.card-caption span {
+.card-info span {
   display: block;
   margin-top: 0.2rem;
   color: #c8d1de;
   font-size: 0.63rem;
   line-height: 1.25;
+}
+
+.card-info .card-info-count {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.card-info-btn {
+  position: absolute;
+  right: 0.45rem;
+  bottom: 0.45rem;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  background: rgba(6, 8, 12, 0.5);
+  color: var(--gold);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.card-info-btn:hover {
+  background: var(--gold);
+  color: #201804;
 }
 
 .copies-badge {
@@ -438,11 +469,15 @@ input[type="text"] {
 }
 
 .cursed-badge {
-  background: rgba(224, 90, 90, 0.92);
+  left: 0.5rem;
+  right: auto;
+  bottom: 0.45rem;
+  top: auto;
+  background: rgba(224, 90, 90, 0.8);
   color: #220909;
 }
 
-.card-caption .curse-note {
+.card-info .curse-note {
   color: var(--red);
   font-weight: 700;
 }

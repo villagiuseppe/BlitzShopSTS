@@ -83,22 +83,42 @@ function makeWareCard(card, index, source, playerIndex = null) {
   attachImage(img, fallback, card);
   button.append(img, fallback);
 
-  const caption = el('div', 'card-caption');
-  caption.append(el('strong', '', card.nome), el('span', '', card.effetto));
+  const frontChildren = [button];
   if (source === 'cursed') {
-    caption.append(
+    frontChildren.push(
+      el('span', 'copies-badge cursed-badge', `P${playerIndex + 1}`),
+    );
+  }
+
+  const info = el('div', 'card-info');
+  info.hidden = true;
+  info.append(
+    el('strong', '', card.nome),
+    el('span', 'card-info-count', `Cards: ×${card.copie}`),
+    el('span', '', card.effetto),
+  );
+  if (source === 'cursed') {
+    info.append(
       el('span', 'curse-note', `+1 Random Curse · Player ${playerIndex + 1} only`),
     );
   }
 
-  const badgeClass = source === 'cursed' ? 'copies-badge cursed-badge' : 'copies-badge';
-  const badgeText =
-    source === 'cursed' ? `P${playerIndex + 1} · CURSED` : `×${card.copie}`;
-  const badge = el('span', badgeClass, badgeText);
+  const infoButton = el('button', 'card-info-btn', '?');
+  infoButton.type = 'button';
+  infoButton.setAttribute('aria-label', `Details for ${card.nome}`);
+  infoButton.setAttribute('aria-expanded', 'false');
+  infoButton.addEventListener('click', () => {
+    const open = info.hidden;
+    info.hidden = !open;
+    infoButton.textContent = open ? '×' : '?';
+    infoButton.setAttribute('aria-expanded', String(open));
+  });
+
   const overlay = el('div', 'taken-overlay', 'PURCHASED');
   overlay.hidden = true;
 
-  front.append(button, badge, caption);
+  frontChildren.push(info, infoButton);
+  front.append(...frontChildren);
   flip.append(front);
   slot.append(flip, overlay);
   return slot;
