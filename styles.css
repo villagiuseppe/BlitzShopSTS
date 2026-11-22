@@ -230,7 +230,11 @@ h2 {
 }
 
 .active-player-chip {
-  min-width: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 74px;
   padding: 0.35rem 0.6rem;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -260,51 +264,22 @@ h2 {
   color: var(--green);
 }
 
-.hint {
-  color: var(--muted);
-  font-size: 0.8rem;
+.active-player-count {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
-.player-statuses {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-bottom: 0.6rem;
-}
-
-.player-status {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.55rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.18);
-  color: var(--muted);
-  font-size: 0.72rem;
-}
-
-.player-status.active {
-  border-color: var(--gold);
+.active-player-chip.active .active-player-count {
   color: var(--gold);
 }
 
-.player-status.complete {
-  border-color: var(--green);
+.active-player-chip.complete .active-player-count {
   color: var(--green);
 }
 
-.player-status b {
-  color: var(--text);
-}
-
-.player-status.complete b {
-  color: var(--green);
-}
-
-.player-status .bonus {
-  color: var(--green);
-  font-weight: 700;
+.hint {
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 
 .card-grid {
@@ -512,11 +487,6 @@ h2 {
   top: auto;
   background: rgba(224, 90, 90, 0.8);
   color: #220909;
-}
-
-.card-info .curse-note {
-  color: var(--red);
-  font-weight: 700;
 }
 
 .cursed-card.other-player .card-front {
