@@ -96,11 +96,6 @@ function makeWareCard(card, index, source, playerIndex = null) {
     el('span', 'card-info-count', `Cards: ×${card.copie}`),
     el('span', '', card.effetto),
   );
-  if (source === 'cursed') {
-    info.append(
-      el('span', 'curse-note', `+1 Random Curse · Player ${playerIndex + 1} only`),
-    );
-  }
 
   const infoButton = el('button', 'card-info-btn', '?');
   infoButton.type = 'button';

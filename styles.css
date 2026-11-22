@@ -514,11 +514,6 @@ h2 {
   color: #220909;
 }
 
-.card-info .curse-note {
-  color: var(--red);
-  font-weight: 700;
-}
-
 .cursed-card.other-player .card-front {
   filter: brightness(0.62);
 }
