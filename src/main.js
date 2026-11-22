@@ -22,7 +22,6 @@ const dom = {
   activePlayer: document.getElementById('active-player'),
   activeHint: document.getElementById('active-hint'),
   wareBoard: document.getElementById('ware-board'),
-  playerStatuses: document.getElementById('player-statuses'),
   appVersion: document.getElementById('app-version'),
 };
 
@@ -143,9 +142,13 @@ function renderActivePlayerButtons() {
     const classes = ['active-player-chip'];
     if (playerIndex === state.activePlayer) classes.push('active');
     if (summary.used >= summary.limit) classes.push('complete');
-    const chip = el('button', classes.join(' '), `P${playerIndex + 1}`);
+    const chip = el('button', classes.join(' '));
     chip.type = 'button';
     chip.setAttribute('aria-pressed', String(playerIndex === state.activePlayer));
+    chip.append(
+      el('span', '', `P${playerIndex + 1}`),
+      el('b', 'active-player-count', `${summary.used}/${summary.limit}`),
+    );
     chip.addEventListener('click', () => {
       state.activePlayer = playerIndex;
       updateBoardStates();
@@ -219,24 +222,6 @@ function updateBoardStates() {
       infoButton.setAttribute('aria-expanded', 'false');
     }
   });
-
-  dom.playerStatuses.replaceChildren();
-  for (let p = 0; p < session.numPlayers; p += 1) {
-    const ps = playerSummary(session, p);
-    const status = el(
-      'div',
-      [
-        'player-status',
-        p === state.activePlayer ? 'active' : '',
-        ps.used >= ps.limit ? 'complete' : '',
-      ]
-        .filter(Boolean)
-        .join(' '),
-    );
-    status.append(el('span', '', `P${p + 1}`), el('b', '', `${ps.used}/${ps.limit}`));
-    if (ps.cursedChosen) status.append(el('span', 'bonus', '+2'));
-    dom.playerStatuses.append(status);
-  }
 
   renderActivePlayerButtons();
 
