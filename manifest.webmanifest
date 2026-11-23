@@ -1,0 +1,19 @@
+{
+  "name": "Shop Blitz Simulator",
+  "short_name": "Shop Blitz",
+  "description": "Companion app for drawing Merchant wares in Slay the Spire: The Board Game.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#17152a",
+  "theme_color": "#17152a",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
