@@ -1,6 +1,6 @@
 {
-  "name": "Shop Blitz Simulator",
-  "short_name": "Shop Blitz",
+  "name": "Blitz's Shop Simulator",
+  "short_name": "Blitz's Shop",
   "description": "Companion app for drawing Merchant wares in Slay the Spire: The Board Game.",
   "start_url": ".",
   "scope": ".",
