@@ -1,4 +1,4 @@
-# Shop Blitz Simulator
+# Blitz's Shop Simulator
 
 Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: The Board Game – Blitz Mode**. L'app ricrea le estrazioni descritte in [`regole_estrazione_mercante.txt`](./regole_estrazione_mercante.txt): un pool di **20 tipologie di merci** (12 Standard + 8 Cursed, corrispondenti a 20 immagini e 24 carte fisiche grazie alle copie doppie), mescolate e rivelate secondo il numero di giocatori.
 
