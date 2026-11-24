@@ -226,12 +226,13 @@ h2 {
 }
 
 .active-player-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
   min-width: 74px;
-  padding: 0.35rem 0.6rem;
+  padding: 0.35rem 1.25rem 0.35rem 0.6rem;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel-2);
@@ -240,6 +241,17 @@ h2 {
   font-size: 0.8rem;
   cursor: pointer;
   transition: 0.18s ease;
+}
+
+.active-player-chip.active::after {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.3rem;
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
 }
 
 .active-player-chip:hover {
