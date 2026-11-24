@@ -10,6 +10,7 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 
 - **Estrazione singola o multipla**: scegli da 1 a 4 giocatori; in solitario vengono mostrate 3 carte Standard di tipologie diverse, con più giocatori 2 carte Standard per giocatore.
 - **Cursed personali**: ogni giocatore riceve una propria carta Cursed; le carte altrui non sono selezionabili.
+- **Indicatore del giocatore attivo**: un pallino nell'angolo inferiore destro del pulsante attivo è giallo finché il limite di acquisto non è raggiunto e verde quando la selezione è completa.
 - **Gestione del pool da 20 tipologie**: 16 carte Standard (12 tipologie, 4 presenti in doppia copia) e 8 carte Cursed uniche, senza reimmissione durante la stessa visita al Mercante.
 - **Regole, pesi e condizioni**: il numero di copie funziona da peso statistico; regole e costanti sono centralizzate in `src/cards.js` e documentate nel file delle regole.
 - **Visualizzazione delle immagini**: 20 PNG in `assets/images/`, con anteprima delle carte e dettagli dell'effetto tramite il pulsante `?`.
