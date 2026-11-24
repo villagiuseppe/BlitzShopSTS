@@ -38,6 +38,7 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 ```text
 .
 ├── .github/
+│   ├── copilot-instructions.md # Istruzioni per GitHub Copilot
 │   └── workflows/
 │       └── deploy.yml          # Deploy automatico su GitHub Pages
 ├── assets/
@@ -49,6 +50,7 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 │   └── version.js              # Versione sorgente (sovrascritta in deploy)
 ├── index.html                  # Struttura della pagina
 ├── styles.css                  # Stili e layout responsive
+├── AGENTS.md                   # Linee guida per gli agenti di codice
 ├── regole_estrazione_mercante.txt  # Specifiche di gioco di riferimento
 └── README.md                   # Questa documentazione
 ```
