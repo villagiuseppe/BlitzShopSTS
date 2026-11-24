@@ -2,6 +2,8 @@ import { RULES, imagePath } from './cards.js';
 import {
   createSession,
   purchase,
+  canCancelPurchase,
+  cancelPurchase,
   resetChoices,
   playerSummary,
   canPurchase,
@@ -177,6 +179,10 @@ function reasonLabel(reason) {
       return 'Not your Cursed Ware';
     case 'duplicate-card':
       return 'Same card already selected';
+    case 'not-owned':
+      return 'Only the player who purchased this card can cancel it.';
+    case 'bonus-in-use':
+      return 'Cancel extra purchases before cancelling Cursed Choices.';
     default:
       return 'Unavailable';
   }
@@ -195,6 +201,10 @@ function updateBoardStates() {
       list.some((item) => item.source === source && item.uid === uid),
     );
     const taken = purchaserIndex !== -1;
+    const purchasedByActivePlayer = purchaserIndex === state.activePlayer;
+    const cancelCheck = purchasedByActivePlayer
+      ? canCancelPurchase(session, state.activePlayer, source, uid)
+      : null;
     const otherPlayer = source === 'cursed' && owner !== state.activePlayer;
     const button = slot.querySelector('.card-button');
     const overlay = slot.querySelector('.taken-overlay');
@@ -203,9 +213,15 @@ function updateBoardStates() {
 
     slot.classList.toggle('taken', taken);
     slot.classList.toggle('other-player', otherPlayer);
-    button.disabled = !check.ok;
+    button.disabled = taken
+      ? !purchasedByActivePlayer
+      : !check.ok;
     button.title = taken
-      ? `Purchased by P${purchaserIndex + 1}`
+      ? purchasedByActivePlayer
+        ? cancelCheck.ok
+          ? 'Click to cancel your purchase'
+          : reasonLabel(cancelCheck.reason)
+        : `Purchased by P${purchaserIndex + 1}`
       : otherPlayer
         ? `Only Player ${owner + 1} can take this`
         : check.ok
@@ -249,7 +265,20 @@ function handleBuy(event) {
 
   const source = button.dataset.source;
   const playerIndex = state.activePlayer;
-  const result = purchase(state.session, playerIndex, source, button.dataset.uid);
+  const uid = button.dataset.uid;
+  const purchaserIndex = state.session.purchases.findIndex((list) =>
+    list.some((item) => item.source === source && item.uid === uid),
+  );
+
+  if (purchaserIndex !== -1) {
+    if (purchaserIndex !== playerIndex) return;
+    const result = cancelPurchase(state.session, playerIndex, source, uid);
+    updateBoardStates();
+    if (!result.ok) dom.activeHint.textContent = reasonLabel(result.reason);
+    return;
+  }
+
+  const result = purchase(state.session, playerIndex, source, uid);
   if (!result.ok) return;
 
   updateBoardStates();

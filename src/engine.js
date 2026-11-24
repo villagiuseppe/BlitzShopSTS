@@ -256,6 +256,46 @@ export function purchase(session, playerIndex, source, uid) {
   return check;
 }
 
+/** Verifica se un giocatore puo' annullare un proprio acquisto. */
+export function canCancelPurchase(session, playerIndex, source, uid) {
+  if (
+    !Number.isInteger(playerIndex) ||
+    playerIndex < 0 ||
+    playerIndex >= session.numPlayers
+  ) {
+    return { ok: false, reason: 'invalid-player', card: null };
+  }
+
+  const purchases = session.purchases[playerIndex];
+  const card = purchases.find(
+    (item) => item.source === source && item.uid === uid,
+  );
+  if (!card) return { ok: false, reason: 'not-owned', card: null };
+
+  if (
+    card.typeId === 'cursed-choices' &&
+    purchases.length - 1 > RULES.BASE_PURCHASE_LIMIT
+  ) {
+    return { ok: false, reason: 'bonus-in-use', card };
+  }
+
+  return { ok: true, reason: 'ok', card };
+}
+
+/** Annulla un acquisto effettuato dal giocatore indicato. */
+export function cancelPurchase(session, playerIndex, source, uid) {
+  const check = canCancelPurchase(session, playerIndex, source, uid);
+  if (!check.ok) return check;
+
+  const purchases = session.purchases[playerIndex];
+  const index = purchases.findIndex(
+    (item) => item.source === source && item.uid === uid,
+  );
+  purchases.splice(index, 1);
+
+  return check;
+}
+
 /** Annulla tutti gli acquisti mantenendo le stesse carte estratte. */
 export function resetChoices(session) {
   session.purchases = Array.from({ length: session.numPlayers }, () => []);
