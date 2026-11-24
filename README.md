@@ -43,6 +43,10 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 │   └── workflows/
 │       └── deploy.yml          # Deploy automatico su GitHub Pages
 ├── assets/
+│   ├── apple-touch-icon.png    # Icona iOS 180×180
+│   ├── icon-192.png            # Icona PWA 192×192
+│   ├── icon-512.png            # Icona PWA 512×512
+│   ├── icon.svg                # Icona vettoriale
 │   └── images/                 # 20 immagini PNG delle carte
 ├── docs/
 │   └── regole_estrazione_mercante.txt  # Specifiche di gioco di riferimento
@@ -65,6 +69,7 @@ Il progetto è una web app senza build: `index.html` carica direttamente i modul
 
 Il sito può essere installato come PWA su Android e iPhone dopo essere stato pubblicato con HTTPS.
 
+- Il manifest include icone PNG da **192×192** e **512×512**; i dispositivi Apple usano un'icona **180×180**.
 - **Android / Chrome:** apri il sito, tocca il menu `⋮`, quindi seleziona **Installa app** o **Aggiungi a schermata Home**.
 - **iPhone / Safari:** apri il sito, tocca Condividi, quindi **Aggiungi alla schermata Home**.
 
