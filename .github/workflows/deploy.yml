@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -42,6 +43,38 @@ jobs:
         with:
           name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: _site
+
+      - name: Wait for Pages artifact metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_API_URL: ${{ github.api_url }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          ARTIFACT_NAME: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          for attempt in $(seq 1 30); do
+            artifact_count=$(curl --fail --silent --show-error \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "${GH_API_URL}/repos/${REPOSITORY}/actions/runs/${RUN_ID}/artifacts?per_page=100" \
+              | jq --arg name "${ARTIFACT_NAME}" '[.artifacts[] | select(.name == $name)] | length')
+
+            if [ "${artifact_count}" -eq 1 ]; then
+              echo "Pages artifact is available."
+              exit 0
+            fi
+
+            if [ "${artifact_count}" -gt 1 ]; then
+              echo "::error::Found multiple Pages artifacts named ${ARTIFACT_NAME}."
+              exit 1
+            fi
+
+            echo "Pages artifact metadata is not available yet (${attempt}/30)."
+            sleep 2
+          done
+
+          echo "::error::Pages artifact metadata did not become available."
+          exit 1
 
       - name: Deploy to GitHub Pages
         id: deployment
