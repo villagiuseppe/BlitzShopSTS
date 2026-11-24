@@ -1,7 +1,7 @@
 /**
  * Definizione delle 20 tipologie di carte "Merce" del Mercante (Blitz Mode).
  *
- * Fonte: regole_estrazione_mercante.txt
+ * Fonte: docs/regole_estrazione_mercante.txt
  *  - Mazzo Standard: 12 tipologie uniche, 16 carte fisiche (4 tipologie in doppia copia).
  *  - Mazzo Maledetto: 8 tipologie uniche, 8 carte fisiche (sempre 1 copia).
  *

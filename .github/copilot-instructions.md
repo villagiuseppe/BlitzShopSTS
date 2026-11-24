@@ -8,7 +8,7 @@ Follow all conventions and rules defined in `AGENTS.md` in the repository root. 
 
 ## Mandatory Rules for Copilot
 1. **Strict Scope & Minimal Diffs:** Modify only files directly relevant to the requested task. Do not refactor unrelated code, alter build/deploy workflows, or introduce heavy dependencies unless explicitly asked.
-2. **Rules & Logic Separation:** Treat `regole_estrazione_mercante.txt` as the source of truth for card pools, draw mechanics, player counts, and purchase/reset rules. Keep card definitions in `src/cards.js`, game logic in `src/engine.js`, and DOM manipulation in `src/main.js`.
+2. **Rules & Logic Separation:** Treat `docs/regole_estrazione_mercante.txt` as the source of truth for card pools, draw mechanics, player counts, and purchase/reset rules. Keep card definitions in `src/cards.js`, game logic in `src/engine.js`, and DOM manipulation in `src/main.js`.
 3. **Always Update `README.md`:** Whenever changes affect rules, features, UI controls, project structure, or setup instructions, update `README.md` in the same task to keep the repository home page aligned with the code.
 4. **No Automatic PRs or Pushes:** Never create Pull Requests (`gh pr create` or GitHub API), open branches, or run `git push` automatically unless explicitly instructed by the user in the current prompt. Leave changes in the local working tree for review.
 5. **Preserve DOM Contracts:** Keep existing element IDs and classes (`#player-selector`, `#draw-btn`, `#reset-choices-btn`, `#active-player`, `#active-hint`, `#ware-board`, `#app-version`, `.site-footer`, `.card-grid`) intact or update every reference consistently across HTML, CSS, and JS.

@@ -3,7 +3,7 @@
  * MOTORE DELLE REGOLE - Simulatore Estrazione Merci del Mercante (Blitz Mode)
  * =============================================================================
  *
- * Fonte normativa: regole_estrazione_mercante.txt
+ * Fonte normativa: docs/regole_estrazione_mercante.txt
  *
  * responsabilita' di questo modulo:
  *  - costruire i due mazzi (Standard 16 carte fisiche, Maledetto 8 carte fisiche);

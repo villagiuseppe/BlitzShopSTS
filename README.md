@@ -1,6 +1,6 @@
 # Blitz's Shop Simulator
 
-Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: The Board Game – Blitz Mode**. L'app ricrea le estrazioni descritte in [`regole_estrazione_mercante.txt`](./regole_estrazione_mercante.txt): un pool di **20 tipologie di merci** (12 Standard + 8 Cursed, corrispondenti a 20 immagini e 24 carte fisiche grazie alle copie doppie), mescolate e rivelate secondo il numero di giocatori.
+Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: The Board Game – Blitz Mode**. L'app ricrea le estrazioni descritte in [`docs/regole_estrazione_mercante.txt`](./docs/regole_estrazione_mercante.txt): un pool di **20 tipologie di merci** (12 Standard + 8 Cursed, corrispondenti a 20 immagini e 24 carte fisiche grazie alle copie doppie), mescolate e rivelate secondo il numero di giocatori.
 
 **Demo pubblicata:** [https://villagiuseppe.github.io/BlitzShopSTS/](https://villagiuseppe.github.io/BlitzShopSTS/)
 
@@ -43,6 +43,8 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 │       └── deploy.yml          # Deploy automatico su GitHub Pages
 ├── assets/
 │   └── images/                 # 20 immagini PNG delle carte
+├── docs/
+│   └── regole_estrazione_mercante.txt  # Specifiche di gioco di riferimento
 ├── src/
 │   ├── cards.js                # Mazzi, tipologie, copie/pesi e costanti RULES
 │   ├── engine.js               # Motore puro: shuffle, estrazione, acquisti, probabilità
@@ -51,7 +53,6 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 ├── index.html                  # Struttura della pagina
 ├── styles.css                  # Stili e layout responsive
 ├── AGENTS.md                   # Linee guida per gli agenti di codice
-├── regole_estrazione_mercante.txt  # Specifiche di gioco di riferimento
 └── README.md                   # Questa documentazione
 ```
 
@@ -94,6 +95,6 @@ Il deploy è gestito da `.github/workflows/deploy.yml`: a ogni push su `main` (o
 ## Crediti e note
 
 - Progetto **fan-made** non affiliato a Contention Games. Riferimento: [Slay the Spire: the Board Game](https://contentiongames.com/games/slay/).
-- Le regole simulate si basano sui materiali della [cartella condivisa Blitz Mode](https://drive.google.com/drive/folders/13Fa5UFuRjoTlitsO4ygVTcCPuUwxH6xU) e sono documentate in `regole_estrazione_mercante.txt`.
+- Le regole simulate si basano sui materiali della [cartella condivisa Blitz Mode](https://drive.google.com/drive/folders/13Fa5UFuRjoTlitsO4ygVTcCPuUwxH6xU) e sono documentate in `docs/regole_estrazione_mercante.txt`.
 - Le immagini in `assets/images/` provengono dalla stessa cartella Blitz Mode e sono incluse nel repository per uso dimostrativo e personale; verificarne la titolarità e le licenze prima di qualsiasi redistribuzione.
 - L'app è pensata per uso personale e didattico, senza finalità commerciali.
