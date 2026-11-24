@@ -92,6 +92,6 @@ Il deploy è gestito da `.github/workflows/deploy.yml`: a ogni push su `main` (o
 ## Crediti e note
 
 - Progetto **fan-made** non affiliato a Contention Games. Riferimento: [Slay the Spire: the Board Game](https://contentiongames.com/games/slay/).
-- Le regole simulate provengono da `regole_estrazione_mercante.txt`, fornito come specifica di riferimento.
-- Le immagini in `assets/images/` sono risorse grafiche incluse nel repository per uso dimostrativo e personale; verificarne la titolarità e le licenze prima di qualsiasi redistribuzione.
+- Le regole simulate si basano sui materiali della [cartella condivisa Blitz Mode](https://drive.google.com/drive/folders/13Fa5UFuRjoTlitsO4ygVTcCPuUwxH6xU) e sono documentate in `regole_estrazione_mercante.txt`.
+- Le immagini in `assets/images/` provengono dalla stessa cartella Blitz Mode e sono incluse nel repository per uso dimostrativo e personale; verificarne la titolarità e le licenze prima di qualsiasi redistribuzione.
 - L'app è pensata per uso personale e didattico, senza finalità commerciali.
