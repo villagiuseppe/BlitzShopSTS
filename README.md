@@ -13,7 +13,7 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 - **Gestione del pool da 20 tipologie**: 16 carte Standard (12 tipologie, 4 presenti in doppia copia) e 8 carte Cursed uniche, senza reimmissione durante la stessa visita al Mercante.
 - **Regole, pesi e condizioni**: il numero di copie funziona da peso statistico; regole e costanti sono centralizzate in `src/cards.js` e documentate nel file delle regole.
 - **Visualizzazione delle immagini**: 20 PNG in `assets/images/`, con anteprima delle carte e dettagli dell'effetto tramite il pulsante `?`.
-- **Simulazione acquisti**: clicca una carta per assegnarla al giocatore attivo; limite base di 2 merci, esteso a 4 dopo aver scelto *Cursed Choices*. Le carte già prese vengono disabilitate.
+- **Simulazione acquisti**: clicca una carta per assegnarla al giocatore attivo; limite base di 2 merci, esteso a 4 dopo aver scelto *Cursed Choices*. Le carte già prese vengono disabilitate e indicano il giocatore acquirente (P1–P4).
 - **Reset**: annulla tutte le scelte mantenendo la stessa estrazione; premendo **Draw** viene invece generata una nuova sessione.
 - **Test / simulazione rapida**: il motore espone funzioni probabilistiche come `simulateFrequencies()` utilizzabili da Node per validare pesi e frequenze. La UI attuale non include un pannello storico né una modalità test visiva: lo storico dei risultati non è più mostrato.
 
