@@ -535,7 +535,7 @@ h2 {
   }
 
   .player-chip {
-    min-width: 1.75rem;
+    min-width: 3rem;
     padding: 0.45rem 0.2rem;
   }
 
@@ -583,6 +583,12 @@ h2 {
   .player-chip,
   .active-player-chip {
     min-height: 44px;
+  }
+}
+
+@media (max-width: 390px) {
+  .player-chip {
+    min-width: 1.75rem;
   }
 }
 
