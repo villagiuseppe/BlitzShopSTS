@@ -4,7 +4,6 @@ import {
   purchase,
   resetChoices,
   playerSummary,
-  isStandardTaken,
   canPurchase,
 } from './engine.js';
 import { APP_VERSION } from './version.js';
@@ -192,12 +191,10 @@ function updateBoardStates() {
     const source = slot.dataset.source;
     const owner = slot.dataset.player === undefined ? null : Number(slot.dataset.player);
     const check = canPurchase(session, state.activePlayer, source, uid);
-    const taken =
-      source === 'standard'
-        ? isStandardTaken(session, uid)
-        : session.purchases.some((list) =>
-            list.some((item) => item.source === 'cursed' && item.uid === uid),
-          );
+    const purchaserIndex = session.purchases.findIndex((list) =>
+      list.some((item) => item.source === source && item.uid === uid),
+    );
+    const taken = purchaserIndex !== -1;
     const otherPlayer = source === 'cursed' && owner !== state.activePlayer;
     const button = slot.querySelector('.card-button');
     const overlay = slot.querySelector('.taken-overlay');
@@ -208,13 +205,16 @@ function updateBoardStates() {
     slot.classList.toggle('other-player', otherPlayer);
     button.disabled = !check.ok;
     button.title = taken
-      ? 'Already purchased'
+      ? `Purchased by P${purchaserIndex + 1}`
       : otherPlayer
         ? `Only Player ${owner + 1} can take this`
         : check.ok
           ? 'Purchase'
           : reasonLabel(check.reason);
     overlay.hidden = !taken;
+    overlay.textContent = taken
+      ? `PURCHASED (P${purchaserIndex + 1})`
+      : 'PURCHASED';
     infoButton.disabled = taken;
     if (taken) {
       info.hidden = true;
