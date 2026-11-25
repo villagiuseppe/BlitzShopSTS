@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#17152a" />
+    <title>Settings · Blitz's Shop Simulator</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">
+        <img class="brand-icon" src="./assets/icon.svg" alt="" aria-hidden="true" />
+        <div><h1>Blitz's Shop Simulator</h1></div>
+      </div>
+      <a
+        class="btn btn-secondary settings-back"
+        href="./index.html"
+        aria-label="Back to shop"
+        title="Back to shop"
+      >X</a>
+    </header>
+
+    <main class="settings-layout">
+      <section class="panel settings-panel" aria-labelledby="settings-title">
+        <h2 id="settings-title">Game settings</h2>
+        <p class="settings-intro">Customize the number of wares revealed and the base purchase limit for each player.</p>
+        <form id="settings-form">
+          <label class="setting-row" for="standard-per-player">
+            <span>Standard wares revealed</span>
+            <select id="standard-per-player" name="standardPerPlayer"></select>
+          </label>
+          <p class="setting-note">In solo mode, one additional Standard ware is revealed.</p>
+
+          <label class="setting-row" for="cursed-per-player">
+            <span>Cursed wares revealed</span>
+            <select id="cursed-per-player" name="cursedPerPlayer"></select>
+          </label>
+          <p class="setting-note">A player can purchase at most one Cursed ware, even when two are revealed.</p>
+
+          <label class="setting-row" for="choices-per-player">
+            <span>Base purchase limit</span>
+            <select id="choices-per-player" name="choicesPerPlayer"></select>
+          </label>
+          <p class="setting-note">
+            Choosing
+            <span class="card-preview">
+              <button
+                id="cursed-choices-preview-trigger"
+                class="card-preview-trigger"
+                type="button"
+                aria-controls="cursed-choices-preview"
+                aria-expanded="false"
+              >Cursed Choices</button>
+              <span id="cursed-choices-preview" class="card-preview-popup" role="tooltip" hidden>
+                <img src="./assets/images/Cursed%20Choices.png" alt="Cursed Choices card" />
+              </span>
+            </span>
+            still grants 2 additional purchases.
+          </p>
+
+          <div class="settings-actions">
+            <button class="btn btn-primary" type="submit">Save settings</button>
+            <button id="reset-settings-btn" class="btn btn-secondary" type="button">Reset to defaults</button>
+          </div>
+          <p id="settings-status" class="settings-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+    <footer id="site-footer" class="site-footer"></footer>
+    <script type="module" src="./src/settings.js"></script>
+  </body>
+</html>

@@ -8,12 +8,14 @@ import {
   playerSummary,
   canPurchase,
 } from './engine.js';
-import { APP_VERSION } from './version.js';
+import { readSettings } from './config.js';
+import { renderSiteFooter } from './footer.js';
 
 const state = {
   numPlayers: 1,
   activePlayer: 0,
   session: null,
+  settings: readSettings(),
 };
 
 const dom = {
@@ -23,7 +25,6 @@ const dom = {
   activePlayer: document.getElementById('active-player'),
   activeHint: document.getElementById('active-hint'),
   wareBoard: document.getElementById('ware-board'),
-  appVersion: document.getElementById('app-version'),
 };
 
 function el(tag, className, text) {
@@ -163,8 +164,10 @@ function renderBoards() {
   const slots = session.revealedStandard.map((card, index) =>
     makeWareCard(card, index, 'standard'),
   );
-  session.cursedByPlayer.forEach(([card], playerIndex) => {
-    slots.push(makeWareCard(card, slots.length, 'cursed', playerIndex));
+  session.cursedByPlayer.forEach((cards, playerIndex) => {
+    cards.forEach((card) => {
+      slots.push(makeWareCard(card, slots.length, 'cursed', playerIndex));
+    });
   });
   dom.wareBoard.replaceChildren(...slots);
 }
@@ -243,7 +246,15 @@ function updateBoardStates() {
 
   if (active.remaining === 0) {
     dom.activeHint.textContent = `Player ${state.activePlayer + 1}: purchase limit reached.`;
-  } else if (active.cursedChosen && active.cursedCard?.id === 'cursed-choices') {
+  } else if (
+    active.cursedCards.some(
+      (card) =>
+        card.id === 'cursed-choices' &&
+        state.session.purchases[state.activePlayer].some(
+          (item) => item.source === 'cursed' && item.uid === card.uid,
+        ),
+    )
+  ) {
     dom.activeHint.textContent = 'Cursed Choices bonus active.';
   } else {
     dom.activeHint.textContent = 'Click a card to select it.';
@@ -251,7 +262,8 @@ function updateBoardStates() {
 }
 
 function startNewSession() {
-  state.session = createSession({ numPlayers: state.numPlayers });
+  state.settings = readSettings();
+  state.session = createSession({ numPlayers: state.numPlayers, ...state.settings });
   state.activePlayer = Math.min(state.activePlayer, state.numPlayers - 1);
 
   renderPlayerSelector();
@@ -291,7 +303,7 @@ dom.resetBtn.addEventListener('click', () => {
 });
 dom.wareBoard.addEventListener('click', handleBuy);
 
-dom.appVersion.textContent = `v${APP_VERSION}`;
+renderSiteFooter();
 startNewSession();
 
 if ('serviceWorker' in navigator) {
