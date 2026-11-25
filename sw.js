@@ -1,7 +1,8 @@
-const CACHE_NAME = 'shop-blitz-v1';
+const CACHE_NAME = 'shop-blitz-v4';
 const APP_FILES = [
   './',
   './index.html',
+  './config.html',
   './styles.css',
   './manifest.webmanifest',
   './assets/apple-touch-icon.png',
@@ -9,6 +10,9 @@ const APP_FILES = [
   './assets/icon-512.png',
   './assets/icon.svg',
   './src/main.js',
+  './src/settings.js',
+  './src/footer.js',
+  './src/config.js',
   './src/cards.js',
   './src/engine.js',
   './src/version.js',

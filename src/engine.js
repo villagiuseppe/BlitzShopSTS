@@ -65,14 +65,20 @@ export function validatePlayerCount(numPlayers) {
 
 /**
  * Regola di rivelazione dello Standard:
- *  - 1 giocatore (Solo)  -> 3 carte di tipologie diverse;
- *  - piu' giocatori      -> 2 * num_giocatori carte.
+ *  - 1 giocatore (Solo)  -> una carta in piu' rispetto alla configurazione;
+ *  - piu' giocatori      -> carte configurate per giocatore.
  */
-export function standardRevealCount(numPlayers) {
+export function standardRevealCount(
+  numPlayers,
+  standardPerPlayer = RULES.STANDARD_PER_PLAYER,
+) {
   validatePlayerCount(numPlayers);
+  if (![2, 3, 4].includes(standardPerPlayer)) {
+    throw new RangeError('standardPerPlayer must be 2, 3, or 4');
+  }
   return numPlayers === 1
-    ? RULES.SOLO_STANDARD_REVEAL
-    : RULES.STANDARD_PER_PLAYER * numPlayers;
+    ? standardPerPlayer + 1
+    : standardPerPlayer * numPlayers;
 }
 
 /**
@@ -107,22 +113,37 @@ function buildDeck(cardTypes, rng, weightModifier) {
  * Struttura restituita:
  *  - standardDeck / cursedDeck : carte NON rivelate (pool residuo, senza reimmissione)
  *  - revealedStandard          : pool comune di carte Standard rivelate
- *  - cursedByPlayer[p][0]      : Cursed Ware personale del giocatore p
+ *  - cursedByPlayer[p]         : Cursed Wares personali del giocatore p
  *  - purchases[p]              : acquisti effettuati dal giocatore p
  */
 export function createSession({
   numPlayers = 1,
+  standardPerPlayer = RULES.STANDARD_PER_PLAYER,
+  cursedPerPlayer = RULES.CURSED_PER_PLAYER,
+  choicesPerPlayer = RULES.BASE_PURCHASE_LIMIT,
   seed,
   rng = createRng(seed),
   weightModifier = () => 1,
 } = {}) {
   validatePlayerCount(numPlayers);
+  const revealCount = standardRevealCount(numPlayers, standardPerPlayer);
+  if (![1, 2].includes(cursedPerPlayer)) {
+    throw new RangeError('cursedPerPlayer must be 1 or 2');
+  }
+  if (![2, 3, 4].includes(choicesPerPlayer)) {
+    throw new RangeError('choicesPerPlayer must be 2, 3, or 4');
+  }
 
   const standardDeck = buildDeck(STANDARD_CARDS, rng, weightModifier);
   const cursedDeck = buildDeck(CURSED_CARDS, rng, weightModifier);
 
   // Rivelazione Standard: dal mazzo mescolato, senza reimmissione.
-  const revealCount = standardRevealCount(numPlayers);
+  if (revealCount > standardDeck.length) {
+    throw new RangeError('The Standard deck does not contain enough wares');
+  }
+  if (numPlayers * cursedPerPlayer > cursedDeck.length) {
+    throw new RangeError('The Cursed deck does not contain enough wares');
+  }
   const revealedStandard = [];
   if (numPlayers === 1) {
     const seenTypes = new Set();
@@ -142,14 +163,15 @@ export function createSession({
     revealedStandard.push(...standardDeck.splice(0, revealCount));
   }
 
-  // Rivelazione Maledetta: esattamente 1 carta per ciascun giocatore.
+  // Rivelazione Maledetta: il numero configurato di carte per ciascun giocatore.
   const cursedByPlayer = [];
   for (let player = 0; player < numPlayers; player += 1) {
-    cursedByPlayer.push(cursedDeck.splice(0, RULES.CURSED_PER_PLAYER));
+    cursedByPlayer.push(cursedDeck.splice(0, cursedPerPlayer));
   }
 
   return {
     numPlayers,
+    settings: { standardPerPlayer, cursedPerPlayer, choicesPerPlayer },
     standardDeck,
     cursedDeck,
     revealedStandard,
@@ -167,28 +189,27 @@ export function isStandardTaken(session, uid) {
 
 /**
  * Calcola il limite di acquisto di un giocatore.
- * Base: 2 merci. Se il giocatore HA SCELTO la propria Cursed Choices -> +2 (max 4).
+ * Base: limite configurato. Se il giocatore HA SCELTO Cursed Choices -> +2.
  * Nota: possedere la carta non basta; il bonus scatta solo dopo averla acquistata.
  */
 export function purchaseLimitFor(session, playerIndex) {
-  const cursed = session.cursedByPlayer[playerIndex]?.[0];
-  const choseCursed = session.purchases[playerIndex].some(
-    (item) => item.source === 'cursed',
+  const cursed = session.cursedByPlayer[playerIndex] ?? [];
+  const choseCursedChoices = cursed.some(
+    (card) =>
+      card.id === 'cursed-choices' &&
+      session.purchases[playerIndex].some(
+        (item) => item.source === 'cursed' && item.uid === card.uid,
+      ),
   );
-  const bonus =
-    cursed?.id === 'cursed-choices' && choseCursed
-      ? RULES.CURSED_CHOICES_BONUS
-      : 0;
+  const bonus = choseCursedChoices ? RULES.CURSED_CHOICES_BONUS : 0;
 
-  return RULES.BASE_PURCHASE_LIMIT + bonus;
+  return (session.settings?.choicesPerPlayer ?? RULES.BASE_PURCHASE_LIMIT) + bonus;
 }
 
 /**
  * Verifica se un acquisto e' lecito.
  *
- * Le "combinazioni consentite" del documento (2 Standard oppure 1 Standard + 1
- * Cursed) discendono direttamente dal limite di 2 e dal fatto che ogni giocatore
- * possieda una sola Cursed: non serve una regola aggiuntiva, basta il tetto.
+ * Il limite configurato si applica al totale delle merci acquistate.
  *
  * @returns {{ok: boolean, reason: string, card: object|null}}
  */
@@ -223,14 +244,21 @@ export function canPurchase(session, playerIndex, source, uid) {
   }
 
   if (source === 'cursed') {
-    const own = session.cursedByPlayer[playerIndex][0];
-    if (!own || own.uid !== uid) {
+    const ownCards = session.cursedByPlayer[playerIndex] ?? [];
+    const own = ownCards.find((card) => card.uid === uid);
+    if (!own) {
       return { ok: false, reason: 'not-your-cursed', card: null };
     }
     const alreadyTaken = session.purchases[playerIndex].some(
-      (item) => item.source === 'cursed',
+      (item) => item.source === 'cursed' && item.uid === uid,
     );
     if (alreadyTaken) return { ok: false, reason: 'already-taken', card: own };
+    const cursedPurchases = session.purchases[playerIndex].filter(
+      (item) => item.source === 'cursed',
+    ).length;
+    if (cursedPurchases >= 1) {
+      return { ok: false, reason: 'already-taken', card: own };
+    }
     return { ok: true, reason: 'ok', card: own };
   }
 
@@ -274,7 +302,8 @@ export function canCancelPurchase(session, playerIndex, source, uid) {
 
   if (
     card.typeId === 'cursed-choices' &&
-    purchases.length - 1 > RULES.BASE_PURCHASE_LIMIT
+    purchases.length - 1 >
+      (session.settings?.choicesPerPlayer ?? RULES.BASE_PURCHASE_LIMIT)
   ) {
     return { ok: false, reason: 'bonus-in-use', card };
   }
@@ -314,7 +343,10 @@ export function remainingSummary(session) {
     revealedStandard: session.revealedStandard.length,
     availableStandard,
     takenStandard: session.revealedStandard.length - availableStandard,
-    cursedRevealed: session.cursedByPlayer.length,
+    cursedRevealed: session.cursedByPlayer.reduce(
+      (total, cards) => total + cards.length,
+      0,
+    ),
   };
 }
 
@@ -322,12 +354,14 @@ export function remainingSummary(session) {
 export function playerSummary(session, playerIndex) {
   const used = session.purchases[playerIndex].length;
   const limit = purchaseLimitFor(session, playerIndex);
+  const cursedCards = session.cursedByPlayer[playerIndex] ?? [];
   return {
     playerIndex,
     used,
     limit,
     remaining: Math.max(0, limit - used),
-    cursedCard: session.cursedByPlayer[playerIndex][0] ?? null,
+    cursedCards,
+    cursedCard: cursedCards[0] ?? null,
     cursedChosen: session.purchases[playerIndex].some(
       (item) => item.source === 'cursed',
     ),
@@ -353,8 +387,12 @@ function combinations(n, k) {
  * P(una tipologia Standard con `copie` esemplari compaia ALMENO una volta
  * tra le k carte rivelate) = 1 - C(16-c, k) / C(16, k).
  */
-export function expectedStandardPresence(copies, numPlayers) {
-  const k = standardRevealCount(numPlayers);
+export function expectedStandardPresence(
+  copies,
+  numPlayers,
+  standardPerPlayer = RULES.STANDARD_PER_PLAYER,
+) {
+  const k = standardRevealCount(numPlayers, standardPerPlayer);
   const n = RULES.STANDARD_TOTAL;
   return 1 - combinations(n - copies, k) / combinations(n, k);
 }
@@ -363,8 +401,11 @@ export function expectedStandardPresence(copies, numPlayers) {
  * P(una data tipologia Maledetta compaia tra le p carte personali rivelate)
  * = 1 - C(7, p) / C(8, p) = p / 8.
  */
-export function expectedCursedPresence(numPlayers) {
-  const p = numPlayers * RULES.CURSED_PER_PLAYER;
+export function expectedCursedPresence(
+  numPlayers,
+  cursedPerPlayer = RULES.CURSED_PER_PLAYER,
+) {
+  const p = numPlayers * cursedPerPlayer;
   return 1 - combinations(7, p) / combinations(8, p);
 }
 
@@ -378,6 +419,9 @@ export function expectedCursedPresence(numPlayers) {
  */
 export function simulateFrequencies({
   numPlayers = 1,
+  standardPerPlayer = RULES.STANDARD_PER_PLAYER,
+  cursedPerPlayer = RULES.CURSED_PER_PLAYER,
+  choicesPerPlayer = RULES.BASE_PURCHASE_LIMIT,
   trials = 1000,
   seed,
   weightModifier = () => 1,
@@ -385,14 +429,21 @@ export function simulateFrequencies({
   validatePlayerCount(numPlayers);
   const rng = createRng(seed);
   const totalTrials = Math.max(1, Math.floor(trials));
-  const revealCount = standardRevealCount(numPlayers);
+  const revealCount = standardRevealCount(numPlayers, standardPerPlayer);
 
   const standardCounts = Object.fromEntries(STANDARD_CARDS.map((c) => [c.id, 0]));
   const standardDraws = Object.fromEntries(STANDARD_CARDS.map((c) => [c.id, 0]));
   const cursedCounts = Object.fromEntries(CURSED_CARDS.map((c) => [c.id, 0]));
 
   for (let trial = 0; trial < totalTrials; trial += 1) {
-    const session = createSession({ numPlayers, rng, weightModifier });
+    const session = createSession({
+      numPlayers,
+      standardPerPlayer,
+      cursedPerPlayer,
+      choicesPerPlayer,
+      rng,
+      weightModifier,
+    });
 
     const standardSeen = new Set();
     session.revealedStandard.forEach((card) => {
@@ -404,8 +455,8 @@ export function simulateFrequencies({
     });
 
     const cursedSeen = new Set();
-    session.cursedByPlayer.forEach(([card]) => {
-      if (card) cursedSeen.add(card.id);
+    session.cursedByPlayer.forEach((cards) => {
+      cards.forEach((card) => cursedSeen.add(card.id));
     });
     cursedSeen.forEach((id) => {
       cursedCounts[id] += 1;
@@ -418,7 +469,7 @@ export function simulateFrequencies({
     copie: card.copie,
     image: card.image,
     observed: standardCounts[card.id] / totalTrials,
-    expected: expectedStandardPresence(card.copie, numPlayers),
+    expected: expectedStandardPresence(card.copie, numPlayers, standardPerPlayer),
     drawShare: standardDraws[card.id] / (totalTrials * revealCount),
     expectedDraw: card.copie / RULES.STANDARD_TOTAL,
   }));
@@ -428,7 +479,7 @@ export function simulateFrequencies({
     nome: card.nome,
     image: card.image,
     observed: cursedCounts[card.id] / totalTrials,
-    expected: expectedCursedPresence(numPlayers),
+    expected: expectedCursedPresence(numPlayers, cursedPerPlayer),
   }));
 
   return { numPlayers, trials: totalTrials, standard, cursed };

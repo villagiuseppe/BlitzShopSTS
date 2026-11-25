@@ -8,13 +8,15 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 
 ## Funzionalità principali
 
-- **Estrazione singola o multipla**: scegli da 1 a 4 giocatori; in solitario vengono mostrate 3 carte Standard di tipologie diverse, con più giocatori 2 carte Standard per giocatore.
-- **Cursed personali**: ogni giocatore riceve una propria carta Cursed; le carte altrui non sono selezionabili.
+- **Estrazione singola o multipla**: scegli da 1 a 4 giocatori; dalla pagina impostazioni (icona ingranaggio) configuri carte Standard per giocatore (2/3/4), carte Cursed (1/2) e limite base di acquisto (2/3/4). In solitario viene rivelata una carta Standard in più rispetto al valore configurato.
+- **Preferenze persistenti**: le impostazioni predefinite sono 2 Standard, 1 Cursed e 2 acquisti; sono salvate in un cookie sul dispositivo e ripristinabili con **Reset to defaults**. Se la pagina è aperta da file locale e i cookie non sono disponibili, viene usato il local storage del browser.
+- **Anteprima Cursed Choices**: nella configurazione, passa il puntatore o tieni premuto sul nome della carta per visualizzarne l'immagine; l'anteprima scompare quando rilasci o sposti il puntatore.
+- **Cursed personali**: ogni giocatore riceve il numero configurato di carte Cursed; le carte altrui non sono selezionabili e ogni giocatore può acquistarne al massimo una.
 - **Indicatore del giocatore attivo**: un pallino nell'angolo inferiore destro del pulsante attivo è giallo finché il limite di acquisto non è raggiunto e verde quando la selezione è completa.
 - **Gestione del pool da 20 tipologie**: 16 carte Standard (12 tipologie, 4 presenti in doppia copia) e 8 carte Cursed uniche, senza reimmissione durante la stessa visita al Mercante.
 - **Regole, pesi e condizioni**: il numero di copie funziona da peso statistico; regole e costanti sono centralizzate in `src/cards.js` e documentate nel file delle regole.
 - **Visualizzazione delle immagini**: 20 PNG in `assets/images/`, con anteprima delle carte e dettagli dell'effetto tramite il pulsante `?`.
-- **Simulazione acquisti**: clicca una carta per assegnarla al giocatore attivo; cliccala di nuovo per annullare l'acquisto. Solo il giocatore acquirente può annullare una carta. Il limite base è di 2 merci, esteso a 4 dopo aver scelto *Cursed Choices*; prima di annullare *Cursed Choices* occorre rientrare nel limite base. Le carte prese indicano il giocatore acquirente (P1–P4).
+- **Simulazione acquisti**: clicca una carta per assegnarla al giocatore attivo; cliccala di nuovo per annullare l'acquisto. Solo il giocatore acquirente può annullare una carta. *Cursed Choices* aggiunge 2 acquisti al limite base configurato. Prima di annullare *Cursed Choices* occorre rientrare nel limite base.
 - **Reset**: annulla tutte le scelte mantenendo la stessa estrazione; premendo **Draw** viene invece generata una nuova sessione.
 - **Test / simulazione rapida**: il motore espone funzioni probabilistiche come `simulateFrequencies()` utilizzabili da Node per validare pesi e frequenze. La UI attuale non include un pannello storico né una modalità test visiva: lo storico dei risultati non è più mostrato.
 
@@ -22,14 +24,14 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 
 ## Sintesi delle regole di estrazione
 
-1. **Configurazione**: viene impostato il numero di giocatori (1–4).
+1. **Configurazione**: imposta il numero di giocatori (1–4) e, dalla pagina accessibile con l'icona ingranaggio, Standard (2/3/4 per giocatore, una in più in solitario), Cursed (1/2 per giocatore) e limite base acquisti (2/3/4).
 2. **Mescolamento**: i due mazzi vengono shufflati all'inizio della sessione; nessuna carta torna nel mazzo durante la stessa visita.
 3. **Carte Standard rivelate**:
-   - 1 giocatore → 3 carte, con tipologie diverse;
-   - 2–4 giocatori → `2 × numero di giocatori` carte.
-4. **Carte Cursed rivelate**: 1 carta per ciascun giocatore, assegnata esclusivamente a lui.
-5. **Acquisti**: ogni giocatore può prendere al massimo 2 merci: 2 Standard oppure 1 Standard + la propria Cursed. Non è possibile prendere due tipologie Standard uguali nella stessa sessione.
-6. **Cursed Choices**: se il giocatore acquista la propria carta *Cursed Choices*, il limite sale a 4 merci totali.
+   - 1 giocatore → una carta in più rispetto al valore configurato, con tipologie diverse;
+   - 2–4 giocatori → `carte Standard configurate × numero di giocatori` carte.
+4. **Carte Cursed rivelate**: 1 o 2 carte per ciascun giocatore in base alla configurazione, assegnate esclusivamente a lui.
+5. **Acquisti**: ogni giocatore può prendere fino al limite base configurato e al massimo una carta Cursed, anche se ne sono state rivelate due. Non è possibile prendere due tipologie Standard uguali nella stessa sessione.
+6. **Cursed Choices**: se il giocatore acquista una propria carta *Cursed Choices*, il limite sale di 2 merci.
 7. **Nuova estrazione**: il pulsante **Draw** ricrea la sessione da zero; **Reset** mantiene le carte mostrate e azzera solo gli acquisti.
 
 ---
@@ -52,10 +54,14 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 │   └── regole_estrazione_mercante.txt  # Specifiche di gioco di riferimento
 ├── src/
 │   ├── cards.js                # Mazzi, tipologie, copie/pesi e costanti RULES
+│   ├── config.js               # Impostazioni predefinite, cookie e validazione
 │   ├── engine.js               # Motore puro: shuffle, estrazione, acquisti, probabilità
+│   ├── footer.js               # Footer condiviso tra home e configurazione
 │   ├── main.js                 # Logica UI e rendering della plancia
+│   ├── settings.js             # Logica della pagina di configurazione
 │   └── version.js              # Versione sorgente (sovrascritta in deploy)
 ├── index.html                  # Struttura della pagina
+├── config.html                 # Pagina di configurazione
 ├── styles.css                  # Stili e layout responsive
 ├── AGENTS.md                   # Linee guida per gli agenti di codice
 └── README.md                   # Questa documentazione
