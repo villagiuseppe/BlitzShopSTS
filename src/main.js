@@ -186,6 +186,8 @@ function reasonLabel(reason) {
       return 'Only the player who purchased this card can cancel it.';
     case 'bonus-in-use':
       return 'Cancel extra purchases before cancelling Cursed Choices.';
+    case 'reserved-for-players':
+      return 'Leave enough Standard wares for the other players.';
     default:
       return 'Unavailable';
   }

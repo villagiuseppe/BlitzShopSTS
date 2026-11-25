@@ -10,12 +10,16 @@ export const SETTING_OPTIONS = Object.freeze({
   choicesPerPlayer: [2, 3, 4],
 });
 
+export function maxChoicesPerPlayer(settings) {
+  return Math.min(4, Number(settings.standardPerPlayer) + 1);
+}
+
 const COOKIE_NAME = 'blitz-shop-settings';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 const STORAGE_KEY = 'blitz-shop-settings';
 
 export function normalizeSettings(value = {}) {
-  return Object.fromEntries(
+  const settings = Object.fromEntries(
     Object.entries(DEFAULT_SETTINGS).map(([key, defaultValue]) => {
       const candidate = Number(value[key]);
       return [
@@ -24,6 +28,11 @@ export function normalizeSettings(value = {}) {
       ];
     }),
   );
+  settings.choicesPerPlayer = Math.min(
+    settings.choicesPerPlayer,
+    maxChoicesPerPlayer(settings),
+  );
+  return settings;
 }
 
 export function readSettings() {

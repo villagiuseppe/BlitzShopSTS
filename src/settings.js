@@ -1,6 +1,7 @@
 import {
   DEFAULT_SETTINGS,
   SETTING_OPTIONS,
+  maxChoicesPerPlayer,
   readSettings,
   saveSettings,
 } from './config.js';
@@ -15,6 +16,7 @@ const fields = {
   cursedPerPlayer: document.getElementById('cursed-per-player'),
   choicesPerPlayer: document.getElementById('choices-per-player'),
 };
+const choiceValidation = document.getElementById('choices-validation');
 
 function setCursedChoicesPreview(visible) {
   cursedChoicesPreview.hidden = !visible;
@@ -47,6 +49,29 @@ function populate(settings) {
     );
     field.value = String(settings[key]);
   });
+  updateChoiceOptions();
+}
+
+function updateChoiceOptions() {
+  const maxChoices = maxChoicesPerPlayer({
+    standardPerPlayer: Number(fields.standardPerPlayer.value),
+  });
+  const options = [...fields.choicesPerPlayer.options];
+  options.forEach((option) => {
+    option.disabled = Number(option.value) > maxChoices;
+  });
+
+  if (Number(fields.choicesPerPlayer.value) > maxChoices) {
+    fields.choicesPerPlayer.value = String(maxChoices);
+    choiceValidation.textContent =
+      `The purchase limit was adjusted to ${maxChoices}; with this Standard setting, ` +
+      `one Cursed ware allows up to ${maxChoices} choices.`;
+    return;
+  }
+
+  choiceValidation.textContent =
+    `The purchase limit can be at most ${maxChoices}: ` +
+    `${fields.standardPerPlayer.value} Standard wares plus one Cursed ware.`;
 }
 
 function readForm() {
@@ -69,6 +94,8 @@ form.addEventListener('submit', (event) => {
   event.preventDefault();
   persist(readForm(), 'Settings saved on this device.');
 });
+
+fields.standardPerPlayer.addEventListener('change', updateChoiceOptions);
 
 document.getElementById('reset-settings-btn').addEventListener('click', () => {
   populate(DEFAULT_SETTINGS);

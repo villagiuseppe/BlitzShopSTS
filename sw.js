@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shop-blitz-v4';
+const CACHE_NAME = 'shop-blitz-v5';
 const APP_FILES = [
   './',
   './index.html',
