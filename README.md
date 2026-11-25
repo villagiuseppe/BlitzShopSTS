@@ -79,7 +79,7 @@ Il sito può essere installato come PWA su Android e iPhone dopo essere stato pu
 - **Android / Chrome:** apri il sito, tocca il menu `⋮`, quindi seleziona **Installa app** o **Aggiungi a schermata Home**.
 - **iPhone / Safari:** apri il sito, tocca Condividi, quindi **Aggiungi alla schermata Home**.
 
-La pagina viene registrata come applicazione standalone e mantiene in cache i file principali per l'uso offline. Aggiornare il repository su `main` attiva il nuovo deploy su GitHub Pages.
+La pagina viene registrata come applicazione standalone e mantiene in cache i file principali per l'uso offline. Aggiornare il repository su `main` attiva il nuovo deploy su GitHub Pages. Quando aggiungi una nuova pagina statica, includila nella copia eseguita dallo step `Prepare site` in `.github/workflows/deploy.yml`: GitHub Pages pubblica solo i file inclusi in `_site`.
 
 ---
 

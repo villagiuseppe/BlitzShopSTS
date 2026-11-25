@@ -15,10 +15,12 @@ Static web companion app (**Blitz's Shop Simulator**) for drawing Merchant wares
 7. **Keep UI & metadata copy in English:** Maintain English UI labels, meta tags, and footer attributions unless the user explicitly asks for another language. Preserve external link attributes (`target="_blank" rel="noopener noreferrer"`).
 8. **Check mobile & responsive layout:** Changes to `.card-grid`, controls, or `.site-footer` must remain usable on small phone screens as well as desktop, with clear touch targets and no horizontal overflow.
 9. **Minimal, clean diffs:** Avoid adding heavy external dependencies or build steps unless necessary. Keep comments concise and explain *why* for non-obvious rule or state logic.
+10. **Keep the GitHub Pages artifact complete:** Whenever adding a static page or another required root-level file, update `.github/workflows/deploy.yml` so the `Prepare site` step copies it into `_site`. Verify the deployed path is included; files omitted from `_site` return 404 on GitHub Pages.
 
 ## Verification Checklist Before Finishing
 - Confirm `README.md` has been updated if rules, features, controls, or structure changed.
 - Confirm no automatic Pull Request or remote git push was executed.
 - Confirm no broken relative paths (`./...`) in `index.html`, `manifest.webmanifest`, CSS, or JS modules.
+- Confirm every new static page or required root-level file is copied into `_site` by `.github/workflows/deploy.yml`.
 - Confirm state transitions (`Draw`, `Reset`, player count changes, active player selection, and purchasing/selecting cards) behave consistently without leftover stale DOM nodes or event listeners.
 - Summarize clearly which files were modified, what changed, and how to test locally in WSL before committing to `main`.
