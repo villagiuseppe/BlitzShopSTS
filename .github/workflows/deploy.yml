@@ -31,7 +31,7 @@ jobs:
       - name: Prepare site
         run: |
           mkdir -p _site
-          cp index.html styles.css manifest.webmanifest sw.js .nojekyll _site/
+          cp index.html config.html styles.css manifest.webmanifest sw.js .nojekyll _site/
           cp -r assets src _site/
 
       - name: Set published app version
