@@ -9,6 +9,7 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 ## Funzionalità principali
 
 - **Estrazione singola o multipla**: scegli da 1 a 4 giocatori; dalla pagina impostazioni (icona ingranaggio) configuri carte Standard per giocatore (2/3/4), carte Cursed (1/2) e limite base di acquisto (2/3/4). In solitario viene rivelata una carta Standard in più rispetto al valore configurato.
+- **Coerenza delle scelte**: il limite acquisti non può superare le carte Standard configurate più una Cursed (massimo una acquistabile). Il motore riserva inoltre le carte Standard necessarie affinché gli altri giocatori possano raggiungere il proprio limite base.
 - **Preferenze persistenti**: le impostazioni predefinite sono 2 Standard, 1 Cursed e 2 acquisti; sono salvate in un cookie sul dispositivo e ripristinabili con **Reset to defaults**. Se la pagina è aperta da file locale e i cookie non sono disponibili, viene usato il local storage del browser.
 - **Anteprima Cursed Choices**: nella configurazione, passa il puntatore o tieni premuto sul nome della carta per visualizzarne l'immagine; l'anteprima scompare quando rilasci o sposti il puntatore.
 - **Cursed personali**: ogni giocatore riceve il numero configurato di carte Cursed; le carte altrui non sono selezionabili e ogni giocatore può acquistarne al massimo una.
@@ -24,13 +25,13 @@ Simulatore web statico per la fase d'acquisto dal Mercante in **Slay the Spire: 
 
 ## Sintesi delle regole di estrazione
 
-1. **Configurazione**: imposta il numero di giocatori (1–4) e, dalla pagina accessibile con l'icona ingranaggio, Standard (2/3/4 per giocatore, una in più in solitario), Cursed (1/2 per giocatore) e limite base acquisti (2/3/4).
+1. **Configurazione**: imposta il numero di giocatori (1–4) e, dalla pagina accessibile con l'icona ingranaggio, Standard (2/3/4 per giocatore, una in più in solitario), Cursed (1/2 per giocatore) e limite base acquisti (2/3/4, non superiore a Standard + 1).
 2. **Mescolamento**: i due mazzi vengono shufflati all'inizio della sessione; nessuna carta torna nel mazzo durante la stessa visita.
 3. **Carte Standard rivelate**:
    - 1 giocatore → una carta in più rispetto al valore configurato, con tipologie diverse;
    - 2–4 giocatori → `carte Standard configurate × numero di giocatori` carte.
 4. **Carte Cursed rivelate**: 1 o 2 carte per ciascun giocatore in base alla configurazione, assegnate esclusivamente a lui.
-5. **Acquisti**: ogni giocatore può prendere fino al limite base configurato e al massimo una carta Cursed, anche se ne sono state rivelate due. Non è possibile prendere due tipologie Standard uguali nella stessa sessione.
+5. **Acquisti**: ogni giocatore può prendere fino al limite base configurato e al massimo una carta Cursed, anche se ne sono state rivelate due. Non è possibile prendere due tipologie Standard uguali nella stessa sessione. Le carte Standard necessarie agli altri giocatori per raggiungere il proprio limite base restano riservate.
 6. **Cursed Choices**: se il giocatore acquista una propria carta *Cursed Choices*, il limite sale di 2 merci.
 7. **Nuova estrazione**: il pulsante **Draw** ricrea la sessione da zero; **Reset** mantiene le carte mostrate e azzera solo gli acquisti.
 

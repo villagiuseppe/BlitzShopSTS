@@ -133,6 +133,11 @@ export function createSession({
   if (![2, 3, 4].includes(choicesPerPlayer)) {
     throw new RangeError('choicesPerPlayer must be 2, 3, or 4');
   }
+  if (choicesPerPlayer > standardPerPlayer + 1) {
+    throw new RangeError(
+      'choicesPerPlayer cannot exceed standardPerPlayer plus one Cursed ware',
+    );
+  }
 
   const standardDeck = buildDeck(STANDARD_CARDS, rng, weightModifier);
   const cursedDeck = buildDeck(CURSED_CARDS, rng, weightModifier);
@@ -206,6 +211,22 @@ export function purchaseLimitFor(session, playerIndex) {
   return (session.settings?.choicesPerPlayer ?? RULES.BASE_PURCHASE_LIMIT) + bonus;
 }
 
+function reservedStandardCount(session, excludedPlayerIndex) {
+  const baseLimit =
+    session.settings?.choicesPerPlayer ?? RULES.BASE_PURCHASE_LIMIT;
+
+  return session.purchases.reduce((reserved, purchases, playerIndex) => {
+    if (playerIndex === excludedPlayerIndex) return reserved;
+
+    const standardPurchases = purchases.filter(
+      (item) => item.source === 'standard',
+    ).length;
+    if (purchases.length >= baseLimit) return reserved;
+
+    return reserved + Math.max(0, baseLimit - 1 - standardPurchases);
+  }, 0);
+}
+
 /**
  * Verifica se un acquisto e' lecito.
  *
@@ -239,6 +260,15 @@ export function canPurchase(session, playerIndex, source, uid) {
     );
     if (hasSameType) {
       return { ok: false, reason: 'duplicate-card', card };
+    }
+    const availableStandard = session.revealedStandard.filter(
+      (ware) => !isStandardTaken(session, ware.uid),
+    ).length;
+    if (
+      availableStandard - 1 <
+      reservedStandardCount(session, playerIndex)
+    ) {
+      return { ok: false, reason: 'reserved-for-players', card };
     }
     return { ok: true, reason: 'ok', card };
   }
