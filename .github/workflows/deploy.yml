@@ -61,7 +61,19 @@ jobs:
 
             if [ "${artifact_count}" -eq 1 ]; then
               echo "Pages artifact is available."
-              exit 0
+              echo "Waiting for artifact metadata to propagate to the Pages deploy API."
+              sleep 10
+
+              artifact_count=$(curl --fail --silent --show-error \
+                -H "Authorization: Bearer ${GH_TOKEN}" \
+                -H "Accept: application/vnd.github+json" \
+                "${GH_API_URL}/repos/${REPOSITORY}/actions/runs/${RUN_ID}/artifacts?per_page=100" \
+                | jq --arg name "${ARTIFACT_NAME}" '[.artifacts[] | select(.name == $name)] | length')
+
+              if [ "${artifact_count}" -eq 1 ]; then
+                echo "Pages artifact metadata is stable."
+                exit 0
+              fi
             fi
 
             if [ "${artifact_count}" -gt 1 ]; then
